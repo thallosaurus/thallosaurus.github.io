@@ -97,7 +97,7 @@ nav {
 }
 
 section#content {
-    font-family: monospace;
+    font-family: 'VT323', monospace;
 }
 
 div#text_container {
@@ -130,10 +130,6 @@ a {
     pointer-events: none;
 }
 
-#pad {
-    margin: 100px;
-}
-
 .textContent {
     /* */
     font-size: 20px;
@@ -143,12 +139,42 @@ a {
     text-decoration: underline;
 }
 
+.textContent p {
+    margin-bottom: 1em;
+}
+
+.textContent ul {
+    margin-bottom: 1em;
+}
+
 footer {
     width: 100%;
 }
 
-#foot {
-    position: relative;
-    bottom: 0px;
-    margin: 25px;
+/* Phones */
+@media (pointer:none), (pointer:coarse) {
+    #pad {
+        margin: 15px;
+    }
+
+    #foot {
+        position: relative;
+        width: 100%;
+        padding-top: 25px;
+        padding-bottom: 25px;
+        text-align: center;
+    }
+}
+
+/* Desktop PCs */
+@media (pointer:fine) {
+    #pad {
+        margin: 100px;
+    }
+
+    #foot {
+        position: relative;
+        bottom: 0px;
+        margin: 25px;
+    }
 }

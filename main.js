@@ -6,12 +6,18 @@ Found a bug or noticed something strange? Report it [here](https://github.com/th
 const urlParams = new URL(location.href).searchParams;
 
 const page = urlParams.get("p") || "index";
-const useAnims = (urlParams.get("anim") !== "0");
+const useAnims = page == "index";
 
 let navbar;
 
 let drawSpeed = useAnims ? 25 : 0;
 let howLongAfterWriteFinishShouldWriterStay = 500;
+
+const SETTINGS = {
+    "marked": {
+        breaks: true
+    }
+}
 
 window.onload = function () {
     this.fetch("elements.json")
@@ -25,6 +31,28 @@ window.onload = function () {
 
     this.insertContent(page);
     this.unhideText();
+
+    // Set options
+    // `highlight` example uses `highlight.js`
+    marked.setOptions({
+        "baseUrl": null,
+        "breaks": true,
+        "gfm": true,
+        "headerIds": true,
+        "headerPrefix": "",
+        "highlight": null,
+        "langPrefix": "language-",
+        "mangle": true,
+        "pedantic": false,
+        "sanitize": false,
+        "sanitizer": null,
+        "silent": false,
+        "smartLists": false,
+        "smartypants": false,
+        "xhtml": false
+       });
+
+
 }
 
 function showPage() {
@@ -73,8 +101,7 @@ function animObject(obj) {
             }, obj.drawSpeed || drawSpeed);
         }
         else {
-            if (text != "")
-            {
+            if (text != "") {
                 obj.__element.textContent = text;
             }
             obj.__element.dataset.animstate = "finished";
@@ -87,14 +114,13 @@ function insertContent(page) {
     fetch(`md/${page}.md`).then((data) => {
         if (data.ok) {
             data.text().then((t) => {
-                writeToContent(marked(t));
-            });
+                writeToContent(t)});
         }
         else {
             throw data;
         }
     }).catch((e) => {
-        writeToContent(marked(LOADINGERROR + `\n\n(${e.status} - ${e.statusText})`));
+        writeToContent(LOADINGERROR + `\n\n(${e.status} - ${e.statusText})`);
     });
 }
 
@@ -103,5 +129,5 @@ function unhideText() {
 }
 
 function writeToContent(text) {
-    document.getElementById("text_container").innerHTML = `<div class="textContent">${text}</div>`;
+    document.getElementById("text_container").innerHTML = `<div class="textContent">${marked(text)}</div>`;
 }
