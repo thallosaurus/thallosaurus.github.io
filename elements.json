@@ -12,7 +12,8 @@
         "id": "undertitle",
         "querySelector": ".headerNormal",
         "element": "div",
-        "waitAfterDraw": false
+        "waitAfterDraw": false,
+        "drawSpeed": 50
     },
     {
         "text": "",

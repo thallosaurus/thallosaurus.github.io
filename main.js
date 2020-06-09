@@ -111,7 +111,7 @@ function animObject(obj) {
 }
 
 function insertContent(page) {
-    fetch(`md/${page}.md`).then((data) => {
+    fetch(`md/${page.split("/").pop()}.md`).then((data) => {
         if (data.ok) {
             data.text().then((t) => {
                 writeToContent(t)});
