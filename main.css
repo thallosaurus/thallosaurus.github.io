@@ -148,7 +148,7 @@ footer {
 }
 
 #foot {
-    position: fixed;
+    position: relative;
     bottom: 0px;
     margin: 25px;
 }
