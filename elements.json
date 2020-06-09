@@ -1,0 +1,60 @@
+[
+    {
+        "text": "PRiSMFLUX",
+        "id": "title",
+        "querySelector": ".headerNormal",
+        "element": "div",
+        "waitAfterDraw": true
+    },
+    {
+        "text": "music, coding, synthesizer",
+        "id": "undertitle",
+        "querySelector": ".headerNormal",
+        "element": "div",
+        "waitAfterDraw": false
+    },
+    {
+        "text": "",
+        "id": "gh-link",
+        "querySelector": "ul#tabs",
+        "element": "li",
+        "waitAfterDraw": false
+    },
+    {
+        "text": "",
+        "id": "yt-link",
+        "querySelector": "ul#tabs",
+        "element": "li",
+        "waitAfterDraw": false
+    },
+    {
+        "text": "",
+        "id": "cs-link",
+        "querySelector": "ul#tabs",
+        "element": "li",
+        "waitAfterDraw": false
+    },
+    {
+        "href": "https://github.com/thallosaurus",
+        "text": "GitHub",
+        "id": "gh-ref",
+        "querySelector": "#gh-link",
+        "element": "a",
+        "waitAfterDraw": false
+    },
+    {
+        "href": "https://www.youtube.com/channel/UChnMFs-VLDBm9bzD3w2qLFA",
+        "text": "YouTube",
+        "id": "yt-ref",
+        "querySelector": "#yt-link",
+        "element": "a",
+        "waitAfterDraw": false
+    },
+    {
+        "text": "coming soon",
+        "id": "cs-ref",
+        "querySelector": "#cs-link",
+        "element": "a",
+        "waitAfterDraw": false
+    }
+]
