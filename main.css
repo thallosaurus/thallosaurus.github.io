@@ -5,6 +5,7 @@
 body {
     font-family: 'VT323', monospace;
     background-color: black;
+    overflow-x: none;
 }
 
 .headerNormal {
@@ -102,7 +103,10 @@ section#content {
 div#text_container {
     position:relative;
     width: 100%;
-    height: 100vh;
+
+    opacity: 0;
+
+    transition: all 0.5s linear;
 }
 
 a {
@@ -128,4 +132,13 @@ a {
 
 #pad {
     margin: 100px;
+}
+
+.textContent {
+    /* */
+    font-size: 20px;
+}
+
+.textContent a {
+    text-decoration: underline;
 }
