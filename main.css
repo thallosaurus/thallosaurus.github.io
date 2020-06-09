@@ -2,42 +2,41 @@
     margin: 0;
 }
 
-header {
-    transition: all 2s;
+body {
+    font-family: 'VT323', monospace;
 }
 
 .headerNormal {
     width: 100%;
+}
+
+.blackBg {
     background-color: black;
+    color: white;
 }
 
 #title {
-    height: 100px;
+    height: 1em;
     width: 100%;
     text-align: center;
     font-size: 100px;
-    font-family: 'VT323', monospace;
-    color: white;
 }
 
 #undertitle {
     width: 100%;
-    height: 100px;
+    height: 1.5em;
     text-align: center;
     font-size: 50px;
-    font-family: 'VT323', monospace;
-    color: white;
 }
 
 [data-animstate='drawing']::after {
     left: 5px;
     width: 100%;
     height: 100%;
-    content: "|";
+    content: "_";
     animation-name: blink;
     animation-duration: 2s;
     animation-iteration-count: infinite;
-    color: white;
 }
 
 [data-animstate='finished']::after {
@@ -74,10 +73,11 @@ header {
 
 ul#tabs {
     list-style: none;
-    padding: 10px;
-    height: 60px;
+    padding: 20px;
+    height: 2em;
     /*margin: 50;*/
     color: white;
+    margin-bottom: 2px;
 }
 
 ul#tabs li {
@@ -85,23 +85,46 @@ ul#tabs li {
     border: solid;
     border-width: 0px 0px 5px 0px;
     margin: 0px 10px 0px 10px;
-    font-family: 'VT323', monospace;
     font-size: 30px;
 }
 
 nav {
     padding-top: 25px;
     text-align: center;
-    background-color: black;
     width: 100%;
 }
 
 section#content {
     position: absolute;
-    padding-bottom: 5000px;
+    /*padding-bottom: 5000px*/
+    color: black;
+    font-family: monospace;
+    width: 100%;
+}
+
+div#c {
+    position:absolute;
+    width: 100%;
+    height: 100vh;
 }
 
 a {
     text-decoration: none;
     color: white;
+}
+
+#hider {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.hide {
+    background-color: black;
+}
+
+.show {
+    background-color: transparent;
+    pointer-events: none;
 }

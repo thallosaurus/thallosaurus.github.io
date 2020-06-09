@@ -4,7 +4,8 @@
         "id": "title",
         "querySelector": ".headerNormal",
         "element": "div",
-        "waitAfterDraw": true
+        "waitAfterDraw": true,
+        "drawSpeed": 200
     },
     {
         "text": "music, coding, synthesizer",
@@ -51,7 +52,8 @@
         "waitAfterDraw": false
     },
     {
-        "text": "coming soon",
+        "href": "https://open.spotify.com/artist/4PqdgCVvKW5DDX4vHHJV4q",
+        "text": "Spotify",
         "id": "cs-ref",
         "querySelector": "#cs-link",
         "element": "a",

@@ -25,6 +25,13 @@ window.onload = function()
     }).catch(e => {
         console.log(e);
     });
+
+    this.insertContent();
+}
+
+function showPage()
+{
+    document.getElementById("hider").className = "show";
 }
 
 async function asyncCreateFromObject(jsonMap)
@@ -35,10 +42,12 @@ async function asyncCreateFromObject(jsonMap)
         //e.id = obj.id;
         Object.assign(f, e);
         f.textContent = "";
-        
+
         document.querySelector(e.querySelector).append(f);
         e.__element = f;
     });
+
+    setTimeout(showPage, 10);
 
     for (let i = 0; i < jsonMap.length; i++)
     {
@@ -68,6 +77,17 @@ function animObject(obj)
                 }, obj.waitAfterDraw ? howLongAfterWriteFinishShouldWriterStay : 0);
                 clearInterval(r);
             }
-        }, drawSpeed);
+        }, obj.drawSpeed || 25);
+    });
+}
+
+function insertContent()
+{
+    let charsReceived = 0;
+    let buffer = "";
+    fetch("test.md").then((data) => {
+        data.text().then((t) => {
+            document.getElementById("c").innerHTML = marked(t);
+        });
     });
 }
