@@ -1,3 +1,3 @@
 # Hello!
 
-Welcome to my page! Right now, there is no real content here but it'll follow. I promise!
+Welcome to my page! Right now, there is no real content but it'll follow, I promise!

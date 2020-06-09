@@ -5,7 +5,7 @@
 body {
     font-family: 'VT323', monospace;
     background-color: black;
-    overflow-x: none;
+    overflow-x: hidden;
 }
 
 .headerNormal {
@@ -141,4 +141,14 @@ a {
 
 .textContent a {
     text-decoration: underline;
+}
+
+footer {
+    width: 100%;
+}
+
+#foot {
+    position: fixed;
+    bottom: 0px;
+    margin: 25px;
 }

@@ -6,10 +6,11 @@ Found a bug or noticed something strange? Report it [here](https://github.com/th
 const urlParams = new URL(location.href).searchParams;
 
 const page = urlParams.get("p") || "index";
+const useAnims = (urlParams.get("anim") !== "0");
 
 let navbar;
 
-let drawSpeed = 25;
+let drawSpeed = useAnims ? 25 : 0;
 let howLongAfterWriteFinishShouldWriterStay = 500;
 
 window.onload = function () {
@@ -53,21 +54,32 @@ function animObject(obj) {
         let text = obj.text;
         let index = 0;
 
-        //clear content
+        console.log(obj);
 
-        let r = setInterval(() => {
-            if (index != text.length) {
-                obj.__element.dataset.animstate = "drawing";
-                obj.__element.textContent += text[index++];
+        //clear content
+        if (useAnims) {
+            let r = setInterval(() => {
+                if (index != text.length) {
+                    obj.__element.dataset.animstate = "drawing";
+                    obj.__element.textContent += text[index++];
+                }
+                else {
+                    obj.__element.dataset.animstate = "finished";
+                    setTimeout(() => {
+                        res();
+                    }, obj.waitAfterDraw ? howLongAfterWriteFinishShouldWriterStay : 0);
+                    clearInterval(r);
+                }
+            }, obj.drawSpeed || drawSpeed);
+        }
+        else {
+            if (text != "")
+            {
+                obj.__element.textContent = text;
             }
-            else {
-                obj.__element.dataset.animstate = "finished";
-                setTimeout(() => {
-                    res();
-                }, obj.waitAfterDraw ? howLongAfterWriteFinishShouldWriterStay : 0);
-                clearInterval(r);
-            }
-        }, obj.drawSpeed || 25);
+            obj.__element.dataset.animstate = "finished";
+            res();
+        }
     });
 }
 
@@ -90,7 +102,6 @@ function unhideText() {
     document.getElementById("text_container").style.opacity = "1";
 }
 
-function writeToContent(text)
-{
+function writeToContent(text) {
     document.getElementById("text_container").innerHTML = `<div class="textContent">${text}</div>`;
 }
