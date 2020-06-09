@@ -87,7 +87,7 @@ function insertContent()
     let buffer = "";
     fetch("test.md").then((data) => {
         data.text().then((t) => {
-            document.getElementById("c").innerHTML = marked(t);
+            document.getElementById("text_container").innerHTML = marked(t);
         });
     });
 }

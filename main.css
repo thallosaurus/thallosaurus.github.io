@@ -4,6 +4,7 @@
 
 body {
     font-family: 'VT323', monospace;
+    background-color: black;
 }
 
 .headerNormal {
@@ -95,15 +96,11 @@ nav {
 }
 
 section#content {
-    position: absolute;
-    /*padding-bottom: 5000px*/
-    color: black;
     font-family: monospace;
-    width: 100%;
 }
 
-div#c {
-    position:absolute;
+div#text_container {
+    position:relative;
     width: 100%;
     height: 100vh;
 }
@@ -127,4 +124,8 @@ a {
 .show {
     background-color: transparent;
     pointer-events: none;
+}
+
+#pad {
+    margin: 100px;
 }
