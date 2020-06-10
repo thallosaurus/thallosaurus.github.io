@@ -45,7 +45,7 @@
     },
     {
         "href": "#aboutme",
-        "text": "About Me",
+        "text": "About",
         "id": "me-ref",
         "querySelector": "#me-link",
         "element": "a",
