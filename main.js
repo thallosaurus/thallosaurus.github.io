@@ -3,10 +3,11 @@ Looks like there was an Error while catching the content.
 
 Found a bug or noticed something strange? Report it [here](https://github.com/thallosaurus/thallosaurus.github.io/issues)`;
 
-const urlParams = new URL(location.href).searchParams;
+//const urlParams = new URL(location.href).searchParams;
+//const page = urlParams.get("p") || "index";
 
-const page = urlParams.get("p") || "index";
-const useAnims = page == "index";
+//const page = getHash();
+const useAnims = getHash() == "index";
 
 let navbar;
 
@@ -20,6 +21,9 @@ const SETTINGS = {
 }
 
 window.onload = function () {
+
+    this.registerHashListener();
+
     this.fetch("elements.json")
         .then((data) => {
             return data.json();
@@ -29,34 +33,11 @@ window.onload = function () {
             console.log(e);
         });
 
-    this.insertContent(page);
-    this.unhideText();
-
-    // Set options
-    // `highlight` example uses `highlight.js`
-    marked.setOptions({
-        "baseUrl": null,
-        "breaks": true,
-        "gfm": true,
-        "headerIds": true,
-        "headerPrefix": "",
-        "highlight": null,
-        "langPrefix": "language-",
-        "mangle": true,
-        "pedantic": false,
-        "sanitize": false,
-        "sanitizer": null,
-        "silent": false,
-        "smartLists": false,
-        "smartypants": false,
-        "xhtml": false
-       });
-
-
+    this.insertContent(getHash());
 }
 
 function showPage() {
-    document.getElementById("hider").className = "show";
+    //document.getElementById("hider").className = "show";
 }
 
 async function asyncCreateFromObject(jsonMap) {
@@ -71,10 +52,12 @@ async function asyncCreateFromObject(jsonMap) {
     });
 
     setTimeout(showPage, 50);
-
     for (let i = 0; i < jsonMap.length; i++) {
         await this.animObject(jsonMap[i]);
     }
+
+    //console.log("When do you get executed?");
+    unhideText();
 }
 
 function animObject(obj) {
@@ -111,10 +94,11 @@ function animObject(obj) {
 }
 
 function insertContent(page) {
-    fetch(`md/${page.split("/").pop()}.md`).then((data) => {
+    fetch(`md/${page.split("/").pop().split("#").pop()}.md`).then((data) => {
         if (data.ok) {
             data.text().then((t) => {
-                writeToContent(t)});
+                writeToContent(t)
+            });
         }
         else {
             throw data;
@@ -126,8 +110,39 @@ function insertContent(page) {
 
 function unhideText() {
     document.getElementById("text_container").style.opacity = "1";
+    document.getElementById("foot").style.opacity = "1";
+}
+
+function hideText()
+{
+    document.getElementById("text_container").style.opacity = "0";
+    document.getElementById("foot").style.opacity = "0";
 }
 
 function writeToContent(text) {
-    document.getElementById("text_container").innerHTML = `<div class="textContent">${marked(text)}</div>`;
+    document.getElementById("text_container").innerHTML = `<div class="textContent">${marked(text)}</div>${marked(getBreadcrumbs())}`;
+}
+
+function registerHashListener()
+{
+    //alert("registered listener");
+    window.onhashchange = (e) => {
+        console.log(e);
+        
+        hideText();
+        setTimeout(() => {
+            insertContent(getHash());
+        }, 500);
+        setTimeout(unhideText, 750);
+    }
+}
+
+function getHash()
+{
+    return (location.hash == "" || location.hash == "#index" ? "index" : location.hash);
+}
+
+function getBreadcrumbs()
+{
+    return getHash() != "index" ? "[< Back](#index)" : "";
 }

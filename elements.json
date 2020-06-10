@@ -5,7 +5,7 @@
         "querySelector": ".headerNormal",
         "element": "div",
         "waitAfterDraw": true,
-        "drawSpeed": 200
+        "drawSpeed": 150
     },
     {
         "text": "music, coding, synthesizer",
@@ -14,6 +14,13 @@
         "element": "div",
         "waitAfterDraw": false,
         "drawSpeed": 50
+    },
+    {
+        "text": "",
+        "id": "me-link",
+        "querySelector": "ul#tabs",
+        "element": "li",
+        "waitAfterDraw": false
     },
     {
         "text": "",
@@ -34,6 +41,14 @@
         "id": "cs-link",
         "querySelector": "ul#tabs",
         "element": "li",
+        "waitAfterDraw": false
+    },
+    {
+        "href": "#aboutme",
+        "text": "About Me",
+        "id": "me-ref",
+        "querySelector": "#me-link",
+        "element": "a",
         "waitAfterDraw": false
     },
     {
