@@ -3,11 +3,11 @@ Looks like there was an Error while catching the content.
 
 Found a bug or noticed something strange? Report it [here](https://github.com/thallosaurus/thallosaurus.github.io/issues)`;
 
-//const urlParams = new URL(location.href).searchParams;
+const urlParams = new URL(location.href).searchParams;
 //const page = urlParams.get("p") || "index";
 
 //const page = getHash();
-const useAnims = getHash() == "index";
+const useAnims = getHash() == "index" || urlParams.get("anims") == 1;
 
 let navbar;
 
