@@ -268,3 +268,13 @@ body::-webkit-scrollbar {
   .body {
     -ms-overflow-style: none;
   }
+
+.cover {
+    margin-left: 25%;
+    margin-right: 25%;
+}
+
+  .cover img {
+      width: 50%;
+      height: 50%;
+  }
