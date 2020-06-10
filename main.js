@@ -203,3 +203,8 @@ function goBackOnePage()
     let p = temp.slice(-1)[0];
     return p != undefined ? p : DEFAULTPAGE;
 }
+
+function b()
+{
+    
+}

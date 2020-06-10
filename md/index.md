@@ -1,6 +1,6 @@
 # Hello!
 
-Welcome to my page! Right now, there is no real content but it'll follow, I promise! [test me](#test)
+Welcome to my page! Right now, there is no real content but it'll follow, I promise!
 
 ## Who are you?
 My name is Philipp Gaßner and I live in Bavaria, Germany. I'm currently in training to become a software engineer. I love making music because it allows me to express myself. Read more about it [here](#music).
