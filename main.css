@@ -99,6 +99,7 @@ a[data-role='breadcrumb']
     background-color: var(--text) !important;
     color: var(--background) !important;
     padding: 5px;
+    margin-right: 10px;
 }
 
 a {
@@ -152,6 +153,10 @@ footer {
 code {
     width: 50%;
     font-size: 20px;
+}
+
+.prevent-scrolling {
+    overflow: hidden;
 }
 
 /* Phones */

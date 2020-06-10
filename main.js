@@ -1,3 +1,5 @@
+const DEFAULTPAGE = "#index";
+
 const LOADINGERROR = `# Oh-uh!
 Looks like there was an Error while catching the content.
 
@@ -7,12 +9,14 @@ const urlParams = new URL(location.href).searchParams;
 //const page = urlParams.get("p") || "index";
 
 //const page = getHash();
-const useAnims = getHash() == "#index" || urlParams.get("anims") == 1;
+const useAnims = getHash() == DEFAULTPAGE || urlParams.get("anims") == 1;
 
 let histArray = [getHash()];
 
 let drawSpeed = useAnims ? 25 : 0;
 let howLongAfterWriteFinishShouldWriterStay = 500;
+
+let finished = false;
 
 const SETTINGS = {
     "marked": {
@@ -40,6 +44,7 @@ window.onload = function () {
 
 function showPage() {
     //document.getElementById("hider").className = "show";
+    document.body.className = "";
 }
 
 async function asyncCreateFromObject(jsonMap) {
@@ -53,7 +58,7 @@ async function asyncCreateFromObject(jsonMap) {
         e.__element = f;
     });
 
-    setTimeout(showPage, 50);
+    //setTimeout(showPage, 50);
     for (let i = 0; i < jsonMap.length; i++) {
         await this.animObject(jsonMap[i]);
     }
@@ -67,7 +72,7 @@ function animObject(obj) {
         let text = obj.text;
         let index = 0;
 
-        console.log(obj);
+        //console.log(obj);
 
         //clear content
         if (useAnims) {
@@ -100,7 +105,7 @@ function insertContent(page) {
         if (data.ok) {
             data.text().then((t) => {
                 writeToContent(t);
-                hljs.initHighlighting()
+                hljs.initHighlighting();
             });
         }
         else {
@@ -114,6 +119,9 @@ function insertContent(page) {
 function unhideText() {
     document.getElementById("text_container").style.opacity = "1";
     document.getElementById("foot").style.opacity = "1";
+
+    //make page scrollable
+    showPage();
 }
 
 function hideText()
@@ -130,10 +138,6 @@ function registerHashListener()
 {
     //alert("registered listener");
     window.onhashchange = (e) => {
-        console.log(e);
-        
-        //console.log(histArray);
-
         changeContent(getHash());
     }
 }
@@ -154,7 +158,7 @@ function changeContent(hash, dontAddToHistory)
 
 function getHash()
 {
-    return (location.hash == "" || location.hash == "#index" ? "#index" : location.hash);
+    return (location.hash == "" || location.hash == DEFAULTPAGE ? DEFAULTPAGE : location.hash);
 }
 
 function getBreadcrumbs()
@@ -163,10 +167,10 @@ function getBreadcrumbs()
     let bc = "<p><a data-role='breadcrumb' onclick='historyBack()' href='" + goBackOnePage() + "'>< Back</a>";
     if (histArray.length > 2)
     {
-        bc += "<a data-role='breadcrumb' onclick='clearHistory()' href='#index'>Home</a>";
+        bc += "<a data-role='breadcrumb' onclick='clearHistory()' href='" + DEFAULTPAGE + "'>Home</a>";
     }
     bc += "</p>";
-    return getHash() != "#index" ? bc : "";
+    return getHash() != DEFAULTPAGE ? bc : "";
 }
 
 //functions for the history
@@ -194,5 +198,5 @@ function goBackOnePage()
 
     temp.pop();
     let p = temp.slice(-1)[0];
-    return p != undefined ? p : "#index";
+    return p != undefined ? p : DEFAULTPAGE;
 }
