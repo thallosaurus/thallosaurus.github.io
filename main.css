@@ -136,11 +136,12 @@ a {
     list-style: none;
 }
 
+/*
 .textContent li::before {
     content: "*";
-    /*margin-left: -20px;*/
+    /*margin-left: -20px;*
     margin-right: 30px;
-}
+}*/
 
 footer {
     width: 100%;
@@ -199,6 +200,12 @@ code {
         /* */
         font-size: 20px;
     }
+
+    .textContent li::before {
+        content: "*";
+        /*margin-left: -20px;*/
+        margin-right: 10px;
+    }
 }
 
 /* Desktop PCs */
@@ -238,6 +245,12 @@ code {
     .textContent {
         /* */
         font-size: 35px;
+    }
+
+    .textContent li::before {
+        content: "*";
+        /*margin-left: -20px;*/
+        margin-right: 30px;
     }
 }
 
