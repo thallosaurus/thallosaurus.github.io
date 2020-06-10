@@ -1,10 +1,11 @@
 * {
     margin: 0;
+    transition: all, 0.25s linear;
 }
 
 body {
     font-family: 'VT323', monospace;
-    background-color: black;
+    background-color: var(--background);
     overflow-x: hidden;
 }
 
@@ -13,8 +14,8 @@ body {
 }
 
 .blackBg {
-    background-color: black;
-    color: white;
+    background-color: var(--background);
+    color: var(--text);
 }
 
 [data-animstate='drawing']::after {
@@ -34,10 +35,10 @@ body {
 
 @keyframes blink {
     0% {
-        color: white;
+        color: var(--text);
     }
     24% {
-        color: white;
+        color: var(--text);
     }
     25% {
         color: transparent;
@@ -46,10 +47,10 @@ body {
         color: transparent;
     }
     50% {
-        color: white;
+        color: var(--text);
     }
     74% {
-        color: white;
+        color: var(--text);
     }
     75% {
         color: transparent;
@@ -63,7 +64,7 @@ ul#tabs {
     list-style: none;
     padding: 20px;
     height: 2em;
-    color: white;
+    color: var(--text);
     margin-bottom: 2px;
 }
 
@@ -86,14 +87,14 @@ div#text_container {
 a[href='#index']
 {
     font-size: 25px;
-    background-color: white;
-    color: black;
+    background-color: var(--text) !important;
+    color: var(--background) !important;
     padding: 5px;
 }
 
 a {
     text-decoration: none;
-    color: white;
+    color: var(--text);
 }
 
 #hider {
@@ -104,7 +105,7 @@ a {
 }
 
 .hide {
-    background-color: black;
+    background-color: var(--background);
 }
 
 .show {
