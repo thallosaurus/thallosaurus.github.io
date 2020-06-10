@@ -10,6 +10,7 @@ This is the repo which hosts my personal homepage. Everything here is static and
 * Hyperlinking via HTML-Hashes in Markdown to get a seemless browsing experience
 * Optimizations for smartphones (testing is done on an iPhone 11 Pro btw)
 * NO trackers or cookies are being used
+* Recognizes System-wide Dark Mode setting (only works on supported browsers)
 
 ## Bugs
 * You tell me ;)
