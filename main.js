@@ -28,8 +28,6 @@ window.onload = function () {
 
     this.registerHashListener();
 
-    hljs.initHighlightingOnLoad();
-
     this.fetch("elements.json")
         .then((data) => {
             return data.json();
@@ -101,10 +99,15 @@ function animObject(obj) {
 }
 
 function insertContent(page) {
-    fetch(`md/${page.split("/").pop().split("#").pop()}.md`).then((data) => {
+    //let p = page.split("/").pop().split("#").pop();
+    let p = page.replace(/[#,\\,/,.]/g, "");
+    console.log(p);
+    fetch(`md/${p}.md`).then((data) => {
+        console.log(data);
         if (data.ok) {
             data.text().then((t) => {
                 writeToContent(t);
+//                hljs.initHighlightingOnLoad();
                 hljs.initHighlighting();
             });
         }

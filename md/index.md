@@ -11,6 +11,7 @@ Languages/Skills I know and can handle fine:
 * PHP
 * Server Side JavaScript (Node.JS)
 
-More stuff will follow soon!
+# Is there a way to support you?
+Yes, there is! You can buy my tracks anywhere you can get music digitally or [Support me on Patreon](https://www.patreon.com/prismflux). Also, be sure to subscribe to my YouTube Channel so you don't miss any future tracks or streams I do :)
 
 (You found a bug or noticed something strange? Report it [here](https://github.com/thallosaurus/thallosaurus.github.io/issues))
