@@ -84,7 +84,16 @@ div#text_container {
     opacity: 0;
 }
 
+/* legacy */
 a[href='#index']
+{
+    font-size: 25px;
+    background-color: var(--text) !important;
+    color: var(--background) !important;
+    padding: 5px;
+}
+
+a[data-role='breadcrumb']
 {
     font-size: 25px;
     background-color: var(--text) !important;
@@ -128,7 +137,7 @@ a {
 
 .textContent li::before {
     content: "*";
-    margin-left: -20px;
+    /*margin-left: -20px;*/
     margin-right: 30px;
 }
 
@@ -138,6 +147,11 @@ footer {
 
 .fadein {
     transition: all 0.25s linear;
+}
+
+code {
+    width: 50%;
+    font-size: 20px;
 }
 
 /* Phones */

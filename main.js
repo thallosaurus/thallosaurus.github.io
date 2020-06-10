@@ -7,9 +7,9 @@ const urlParams = new URL(location.href).searchParams;
 //const page = urlParams.get("p") || "index";
 
 //const page = getHash();
-const useAnims = getHash() == "index" || urlParams.get("anims") == 1;
+const useAnims = getHash() == "#index" || urlParams.get("anims") == 1;
 
-let navbar;
+let histArray = [getHash()];
 
 let drawSpeed = useAnims ? 25 : 0;
 let howLongAfterWriteFinishShouldWriterStay = 500;
@@ -23,6 +23,8 @@ const SETTINGS = {
 window.onload = function () {
 
     this.registerHashListener();
+
+    hljs.initHighlightingOnLoad();
 
     this.fetch("elements.json")
         .then((data) => {
@@ -97,7 +99,8 @@ function insertContent(page) {
     fetch(`md/${page.split("/").pop().split("#").pop()}.md`).then((data) => {
         if (data.ok) {
             data.text().then((t) => {
-                writeToContent(t)
+                writeToContent(t);
+                hljs.initHighlighting()
             });
         }
         else {
@@ -129,20 +132,67 @@ function registerHashListener()
     window.onhashchange = (e) => {
         console.log(e);
         
-        hideText();
-        setTimeout(() => {
-            insertContent(getHash());
-        }, 500);
-        setTimeout(unhideText, 750);
+        //console.log(histArray);
+
+        changeContent(getHash());
+    }
+}
+
+function changeContent(hash, dontAddToHistory)
+{
+    hideText();
+    setTimeout(() => {
+        insertContent(hash);
+    }, 500);
+    setTimeout(unhideText, 750);
+
+    if (!dontAddToHistory)
+    {
+        addHistory();
     }
 }
 
 function getHash()
 {
-    return (location.hash == "" || location.hash == "#index" ? "index" : location.hash);
+    return (location.hash == "" || location.hash == "#index" ? "#index" : location.hash);
 }
 
 function getBreadcrumbs()
 {
-    return getHash() != "index" ? "[< Back](#index)" : "";
+    //return getHash() != "#index" ? "[< Back](#index)" : "";
+    let bc = "<p><a data-role='breadcrumb' onclick='historyBack()' href='" + goBackOnePage() + "'>< Back</a>";
+    if (histArray.length > 2)
+    {
+        bc += "<a data-role='breadcrumb' onclick='clearHistory()' href='#index'>Home</a>";
+    }
+    bc += "</p>";
+    return getHash() != "#index" ? bc : "";
+}
+
+//functions for the history
+
+function historyBack()
+{
+    histArray.pop();
+    histArray.pop();
+}
+
+function clearHistory()
+{
+    histArray = [];
+    console.log(histArray);
+}
+
+function addHistory()
+{
+    histArray.push(getHash());
+}
+
+function goBackOnePage()
+{
+    let temp = [...histArray];
+
+    temp.pop();
+    let p = temp.slice(-1)[0];
+    return p != undefined ? p : "#index";
 }
