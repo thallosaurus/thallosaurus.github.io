@@ -1,6 +1,6 @@
 # Equipment
 
-A little over a year ago I switched my musical workflow to hardware synthesizers. Because I'm a huge music production nerd I list my equipment here:
+A little over a year ago I switched my musical workflow to hardware synthesizers and oh my was it an improvment. You know, you sit in front of a PC all the time because of your job, you have to deal with bugs and glitches all day and when you come home, you really don't wanna see a PC again until the next day. So, I decided to build myself a small hardware-only synthesizer setup. And because I'm a huge music production nerd I list my whole equipment here, not just my hardware:
 
 ## Hardware
 
@@ -13,6 +13,7 @@ A little over a year ago I switched my musical workflow to hardware synthesizers
 * Arturia KeyStep
 * IK Multimedia UNO Synth - My very first synth I ever bought. It is alright but in my setup it's either too quiet or with distortion enabled everything kinda sounds squishy and powerless. An okay-ish synth
 * Behringer XENYX Q802USB - Got this mixer when my internal soundcard got fried. It's actually a nice mixer but it sucks that you only get one stereo signal. The oldest part of my setup (7 years old)
+* Launchpad mini MK2 - It's just an array of mappable buttons but it works. Also good if you wanna learn fingerdrumming or just wanna play clips from Ableton
 
 ## Software
 

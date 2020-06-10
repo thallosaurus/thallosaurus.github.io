@@ -1,0 +1,19 @@
+{
+    "dir": "ltr",
+    "lang": "en-US",
+    "name": "PRiSMFLUX",
+    "short_name": "PRiSMFLUX",
+    "description": "DJ PRiSMFLUX - a huge, frickin' nerd with a sense of humor",
+    "icons": [{
+            "src": "icon_512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }],
+    "background_color": "#000000",
+    "theme_color": "#000000",
+    "start_url": "https://prismflux.de/",
+    "scope": "https://prismflux.de/",
+    "display": "standalone",
+    "orientation": "portrait-primary"
+    }
+    
