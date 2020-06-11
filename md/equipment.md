@@ -2,6 +2,8 @@
 
 A little over a year ago I switched my musical workflow to hardware synthesizers and oh my was it an improvment. You know, you sit in front of a PC all the time because of your job, you have to deal with bugs and glitches all day and when you come home, you really don't wanna see a PC again until the next day. So, I decided to build myself a small hardware-only synthesizer setup. And because I'm a huge music production nerd I list my whole equipment here, not just my hardware:
 
+(DISCLAIMER: I don't advertise anything here. The following text reflects my own opinion on these products. I bought all of this from my own money and I don't get get any money to say this)
+
 ## Hardware
 
 * Denon DJ MCX8000 - A nice DJ controller. Can be used with Serato, with digital vinyls and also standalone. It just sucks that my standalone mode is broken and Serato is acting really really buggy lately... (if you know a fix, please DM me on Instagram: @djprismflux)
