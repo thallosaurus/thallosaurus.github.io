@@ -1,5 +1,3 @@
-const DEFAULTPAGE = "#index";
-
 const LOADINGERROR = `# Oh-uh!
 Looks like there was an Error while catching the content.
 
@@ -13,8 +11,7 @@ const useAnims = getHash() == DEFAULTPAGE || urlParams.get("anims") == 1;
 
 let histArray = [getHash()];
 
-let drawSpeed = useAnims ? 25 : 0;
-let howLongAfterWriteFinishShouldWriterStay = 500;
+let drawSpeed = useAnims ? DEFAULT_DRAWSPEED : 0;
 
 let finished = false;
 
@@ -83,7 +80,7 @@ function animObject(obj) {
                     obj.__element.dataset.animstate = "finished";
                     setTimeout(() => {
                         res();
-                    }, obj.waitAfterDraw ? howLongAfterWriteFinishShouldWriterStay : 0);
+                    }, obj.waitAfterDraw ? PAUSE_BETWEEN_WORDS : 0);
                     clearInterval(r);
                 }
             }, obj.drawSpeed || drawSpeed);
