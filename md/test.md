@@ -1,3 +1,7 @@
+# Cache Contents
+
+@cache
+
 # Page Embedding Test
 
 @import md/music.md
