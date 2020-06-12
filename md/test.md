@@ -1,3 +1,8 @@
+# Page Embedding Test
+
+@import md/music.md
+
+# Markdown Test
 ---
 __Advertisement :)__
 

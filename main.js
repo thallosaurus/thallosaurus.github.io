@@ -7,7 +7,9 @@ const urlParams = new URL(location.href).searchParams;
 //const page = urlParams.get("p") || "index";
 
 //const page = getHash();
-const useAnims = getHash() == DEFAULTPAGE || urlParams.get("anims") == 1;
+const docmode = urlParams.get("doc") == 1;
+const useAnims = ((getHash() == DEFAULTPAGE) && !docmode) || urlParams.get("anims") == 1;
+const useCache = urlParams.get("nocache") != 1;
 
 let histArray = [getHash()];
 
@@ -21,11 +23,74 @@ const SETTINGS = {
     }
 }
 
-window.onload = function () {
+let pageCache = {};
 
+function isPageInCache(pagename) {
+    return Object.keys(pageCache).includes(pagename); 
+}
+
+function addToCache(pagename, data) {
+    if (!isPageInCache(pagename)) {
+        //let cpy = new Promise(data);
+        //        Object.copy(cpy, data);
+        //console.log(cpy);
+        //console.trace(pagename);
+        return new Promise((res, rej) => {
+            if (data.ok) {
+                data.text().then(d => {
+                    pageCache[pagename] = d;
+                    res(d);
+                });
+            } else
+            {
+                throw LOADINGERROR + `\n\n(${data.status} - ${data.statusText})`;
+            }
+        });
+    }
+}
+
+function getPageFromCache(pagename) {
+    return pageCache[pagename];
+}
+
+function getFile(file) {
+    //console.log(`loading file ${file} from online`);
+    return fetch(file);
+}
+
+async function getPage(file) {
+    /* if (!isPageInCache()) {
+        return getFile(file).then(e => {
+            addToCache(file, e);
+            return e;
+        });
+    }
+    else {
+        console.log(`Loaded ${file} from cache`);
+        return getPageFromCache(file);
+    } */
+
+    if (!isPageInCache(file)) {
+        console.log(`Loaded ${file} from the internet`);
+
+        return getFile(file).then(async e => {
+            await addToCache(file, e);
+            return getPageFromCache(file);
+        }).catch((r) => {
+            console.log(r);
+            return r;
+        });
+    }
+    else {
+        console.log(`Loaded ${file} from the cache`)
+        return getPageFromCache(file);
+    }
+}
+
+window.onload = function () {
     this.registerHashListener();
 
-    this.fetch("elements.json")
+    this.getFile("elements.json")
         .then((data) => {
             return data.json();
         }).then((json) => {
@@ -97,23 +162,21 @@ function animObject(obj) {
 
 function insertContent(page) {
     //let p = page.split("/").pop().split("#").pop();
-    let p = page.replace(/[#,\\,/,.]/g, "");
-    console.log(p);
-    fetch(`md/${p}.md`).then((data) => {
-        console.log(data);
-        if (data.ok) {
-            data.text().then((t) => {
-                writeToContent(t);
-//                hljs.initHighlightingOnLoad();
-                hljs.initHighlighting();
-            });
-        }
-        else {
-            throw data;
-        }
-    }).catch((e) => {
-        writeToContent(LOADINGERROR + `\n\n(${e.status} - ${e.statusText})`);
+    let p = sanitizeFilename(page);
+
+    //console.log(p);
+    getPage(`${docmode ? "docs/" : "md/"}${p}.md`).then(async (t) => {
+        //if (data.ok) {
+        //data.text().then(async (t) => {
+        let fullPage = await pullAdditionalData(t);
+        //console.log(fullPage);
+        writeToContent(fullPage);
+        hljs.initHighlighting();
     });
+    //});
+    if (1 == 2) {
+        throw data;
+    };
 }
 
 function unhideText() {
@@ -124,8 +187,7 @@ function unhideText() {
     showPage();
 }
 
-function hideText()
-{
+function hideText() {
     document.getElementById("text_container").style.opacity = "0";
     document.getElementById("foot").style.opacity = "0";
 }
@@ -134,39 +196,31 @@ function writeToContent(text) {
     document.getElementById("text_container").innerHTML = `<div class="textContent">${marked(text)}</div>${marked(getBreadcrumbs())}`;
 }
 
-function registerHashListener()
-{
-    //alert("registered listener");
+function registerHashListener() {
     window.onhashchange = (e) => {
         changeContent(getHash());
     }
 }
 
-function changeContent(hash, dontAddToHistory)
-{
+function changeContent(hash, dontAddToHistory) {
     hideText();
     setTimeout(() => {
         insertContent(hash);
     }, 500);
     setTimeout(unhideText, 750);
 
-    if (!dontAddToHistory)
-    {
+    if (!dontAddToHistory) {
         addHistory();
     }
 }
 
-function getHash()
-{
+function getHash() {
     return (location.hash == "" || location.hash == DEFAULTPAGE ? DEFAULTPAGE : location.hash);
 }
 
-function getBreadcrumbs()
-{
-    //return getHash() != "#index" ? "[< Back](#index)" : "";
+function getBreadcrumbs() {
     let bc = "<p><a data-role='breadcrumb' onclick='historyBack()' href='" + goBackOnePage() + "'>< Back</a>";
-    if (histArray.length > 2)
-    {
+    if (histArray.length > 2) {
         bc += "<a data-role='breadcrumb' onclick='clearHistory()' href='" + DEFAULTPAGE + "'>Home</a>";
     }
     bc += "</p>";
@@ -175,25 +229,21 @@ function getBreadcrumbs()
 
 //functions for the history
 
-function historyBack()
-{
+function historyBack() {
     histArray.pop();
     histArray.pop();
 }
 
-function clearHistory()
-{
+function clearHistory() {
     histArray = [];
     console.log(histArray);
 }
 
-function addHistory()
-{
+function addHistory() {
     histArray.push(getHash());
 }
 
-function goBackOnePage()
-{
+function goBackOnePage() {
     let temp = [...histArray];
 
     temp.pop();
@@ -201,7 +251,70 @@ function goBackOnePage()
     return p != undefined ? p : DEFAULTPAGE;
 }
 
-function b()
-{
-    
+function b() {
+
+}
+
+/**
+ * searches for @import <filename>
+ * @param {string} text - the pulled file as string
+ */
+async function pullAdditionalData(rawText) {
+
+    //console.log(rawText);
+
+    let tags = [];
+    const regex = new RegExp(EMBEDDING_TAG);
+    let importTags = [];
+
+    let retStr = rawText;
+
+    while ((tags = regex.exec(rawText)) !== null) {
+        console.log(`Found ${tags[0]}. Next starts at ${regex.lastIndex}.`);
+        let fileName = tags[0].split(" ")[1];
+        if (fileName != null) {
+            let t = {
+                file: fileName,
+                string: tags[0]
+            };
+
+            let text = await replaceWith(t);
+
+            console.log(text);
+            retStr = retStr.replace(tags[0], text);
+        }
+    }
+
+    console.log(tags);
+
+    return retStr;
+
+}
+
+function replaceWith(importTag) {
+    return new Promise((res, rej) => {
+        getPage(importTag.file)
+            .then((e) => {
+                if (e.ok) {
+                    console.log(e);
+                    e.text().then(text => {
+                        console.log(text);
+                        res(text);
+                    });
+                }
+                else {
+                    rej(`Couldn't embed page ${i.string}`);
+                }
+            });
+
+    });
+}
+
+function sanitizeFilename(name) {
+    return name.replace(/[#,\\,/,.]/g, "");
+}
+
+function toggleDocmode(elem) {
+    docmode == !docmode;
+    elem.href = (docmode ? "?doc=0" : "?doc=1");
 }
