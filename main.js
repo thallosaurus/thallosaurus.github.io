@@ -26,7 +26,7 @@ const SETTINGS = {
 let pageCache = {};
 
 function isPageInCache(pagename) {
-    return Object.keys(pageCache).includes(pagename); 
+    return Object.keys(pageCache).includes(pagename);
 }
 
 function addToCache(pagename, data) {
@@ -41,8 +41,7 @@ function addToCache(pagename, data) {
                     pageCache[pagename] = d;
                     res(d);
                 });
-            } else
-            {
+            } else {
                 throw LOADINGERROR + `\n\n(${data.status} - ${data.statusText})`;
             }
         });
@@ -264,13 +263,12 @@ async function pullAdditionalData(rawText) {
     //console.log(rawText);
 
     let tags = [];
-    const regex = new RegExp(EMBEDDING_TAG);
-    let importTags = [];
+    const regex_embed = new RegExp(EMBEDDING_TAG);
 
     let retStr = rawText;
 
-    while ((tags = regex.exec(rawText)) !== null) {
-        console.log(`Found ${tags[0]}. Next starts at ${regex.lastIndex}.`);
+    while ((tags = regex_embed.exec(rawText)) !== null) {
+        console.log(`Found ${tags[0]}. Next starts at ${regex_embed.lastIndex}.`);
         let fileName = tags[0].split(" ")[1];
         if (fileName != null) {
             let t = {
@@ -280,12 +278,19 @@ async function pullAdditionalData(rawText) {
 
             let text = await replaceWith(t);
 
-            console.log(text);
             retStr = retStr.replace(tags[0], text);
         }
     }
 
-    console.log(tags);
+    let c_tags = [];
+    const cache_regex = new RegExp(CACHE_EMBEDDING_TAG);
+
+    while ((c_tags = cache_regex.exec(rawText)) !== null) {
+        console.log(`Found ${c_tags[0]}. Next starts at ${cache_regex.lastIndex}.`);
+        retStr = retStr.replace(c_tags[0], getCacheContentAsJSON());
+    }
+
+    console.log(retStr);
 
     return retStr;
 
@@ -295,16 +300,7 @@ function replaceWith(importTag) {
     return new Promise((res, rej) => {
         getPage(importTag.file)
             .then((e) => {
-                if (e.ok) {
-                    console.log(e);
-                    e.text().then(text => {
-                        console.log(text);
-                        res(text);
-                    });
-                }
-                else {
-                    rej(`Couldn't embed page ${i.string}`);
-                }
+                res(e);
             });
 
     });
@@ -317,4 +313,10 @@ function sanitizeFilename(name) {
 function toggleDocmode(elem) {
     docmode == !docmode;
     elem.href = (docmode ? "?doc=0" : "?doc=1");
+}
+
+function getCacheContentAsJSON() {
+    return "\n```\n" + 
+    JSON.stringify(pageCache) + 
+    "\n```\n";
 }
