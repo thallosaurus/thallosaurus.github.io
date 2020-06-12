@@ -42,8 +42,7 @@ function addToCache(pagename, data) {
                     res(d);
                 });
             } else {
-                console.log(data);
-                rej(LOADINGERROR + `\n\n(${data.status} - ${data.statusText})`);
+                rej(data);
             }
         });
     }
@@ -77,8 +76,9 @@ async function getPage(file) {
             await addToCache(file, e);
             return getPageFromCache(file);
         }).catch((r) => {
-            console.log(r);
-            return "There was an Error while fetching " + file + "\n(" + r.toString() + ")";
+            //console.log(r);
+            //return "There was an Error while fetching " + file + "\n(" + r + ")";
+            return LOADINGERROR + `\n\n(${r.status} - ${r.statusText})`;
         });
     }
     else {
@@ -123,7 +123,6 @@ async function asyncCreateFromObject(jsonMap) {
         await this.animObject(jsonMap[i]);
     }
 
-    console.log("When do you get executed?");
     unhideText();
 }
 
@@ -161,15 +160,12 @@ function animObject(obj) {
 }
 
 function insertContent(page) {
-    //let p = page.split("/").pop().split("#").pop();
     let p = sanitizeFilename(page);
 
     //console.log(p);
     getPage(`${docmode ? "docs/" : "md/"}${p}.md`).then(async (t) => {
-        //if (data.ok) {
-        //data.text().then(async (t) => {
         let fullPage = await pullAdditionalData(t);
-        //console.log(fullPage);
+
         writeToContent(fullPage);
         hljs.initHighlighting();
     });
@@ -293,8 +289,12 @@ async function pullAdditionalData(rawText) {
 
     while ((c_tags = cache_regex.exec(rawText)) !== null) {
         console.log(`Found ${c_tags[0]}. Next starts at ${cache_regex.lastIndex}.`);
-        retStr = retStr.replace(c_tags[0], getCacheContentAsJSON());
+        let c_json = getCacheContentAsJSON();
+        console.log(c_json);
+        retStr = retStr.replace(c_tags[0], c_json);
     }
+
+    console.log(retStr);
 
     return retStr;
 }
@@ -321,5 +321,5 @@ function toggleDocmode(elem) {
 function getCacheContentAsJSON() {
     return "\n```\n" + 
     JSON.stringify(pageCache) + 
-    "\n```\n";
+    "\n```\n\n";
 }
