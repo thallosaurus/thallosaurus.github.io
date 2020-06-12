@@ -42,7 +42,8 @@ function addToCache(pagename, data) {
                     res(d);
                 });
             } else {
-                throw LOADINGERROR + `\n\n(${data.status} - ${data.statusText})`;
+                console.log(data);
+                rej(LOADINGERROR + `\n\n(${data.status} - ${data.statusText})`);
             }
         });
     }
@@ -77,7 +78,7 @@ async function getPage(file) {
             return getPageFromCache(file);
         }).catch((r) => {
             console.log(r);
-            return r;
+            return "There was an Error while fetching " + file + "\n(" + r.toString() + ")";
         });
     }
     else {
@@ -122,7 +123,7 @@ async function asyncCreateFromObject(jsonMap) {
         await this.animObject(jsonMap[i]);
     }
 
-    //console.log("When do you get executed?");
+    console.log("When do you get executed?");
     unhideText();
 }
 
@@ -262,6 +263,11 @@ async function pullAdditionalData(rawText) {
 
     //console.log(rawText);
 
+    if (typeof rawText === "Exception")
+    {
+        console.log("There was an exception");
+    }
+
     let tags = [];
     const regex_embed = new RegExp(EMBEDDING_TAG);
 
@@ -290,10 +296,7 @@ async function pullAdditionalData(rawText) {
         retStr = retStr.replace(c_tags[0], getCacheContentAsJSON());
     }
 
-    console.log(retStr);
-
     return retStr;
-
 }
 
 function replaceWith(importTag) {
