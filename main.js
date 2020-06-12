@@ -21,11 +21,16 @@ const SETTINGS = {
     }
 }
 
-window.onload = function () {
+let lexer;
 
+function getFile(file) {
+    return this.fetch(file);
+}
+
+window.onload = function () {
     this.registerHashListener();
 
-    this.fetch("elements.json")
+    this.getFile("elements.json")
         .then((data) => {
             return data.json();
         }).then((json) => {
@@ -98,13 +103,14 @@ function animObject(obj) {
 function insertContent(page) {
     //let p = page.split("/").pop().split("#").pop();
     let p = page.replace(/[#,\\,/,.]/g, "");
+
     console.log(p);
-    fetch(`md/${p}.md`).then((data) => {
+    getFile(`md/${p}.md`).then((data) => {
         console.log(data);
         if (data.ok) {
-            data.text().then((t) => {
-                writeToContent(t);
-//                hljs.initHighlightingOnLoad();
+            data.text().then(async (t) => {
+                let fullPage = await pullAdditionalData(t);
+                writeToContent(fullPage);
                 hljs.initHighlighting();
             });
         }
@@ -124,8 +130,7 @@ function unhideText() {
     showPage();
 }
 
-function hideText()
-{
+function hideText() {
     document.getElementById("text_container").style.opacity = "0";
     document.getElementById("foot").style.opacity = "0";
 }
@@ -134,39 +139,33 @@ function writeToContent(text) {
     document.getElementById("text_container").innerHTML = `<div class="textContent">${marked(text)}</div>${marked(getBreadcrumbs())}`;
 }
 
-function registerHashListener()
-{
+function registerHashListener() {
     //alert("registered listener");
     window.onhashchange = (e) => {
         changeContent(getHash());
     }
 }
 
-function changeContent(hash, dontAddToHistory)
-{
+function changeContent(hash, dontAddToHistory) {
     hideText();
     setTimeout(() => {
         insertContent(hash);
     }, 500);
     setTimeout(unhideText, 750);
 
-    if (!dontAddToHistory)
-    {
+    if (!dontAddToHistory) {
         addHistory();
     }
 }
 
-function getHash()
-{
+function getHash() {
     return (location.hash == "" || location.hash == DEFAULTPAGE ? DEFAULTPAGE : location.hash);
 }
 
-function getBreadcrumbs()
-{
+function getBreadcrumbs() {
     //return getHash() != "#index" ? "[< Back](#index)" : "";
     let bc = "<p><a data-role='breadcrumb' onclick='historyBack()' href='" + goBackOnePage() + "'>< Back</a>";
-    if (histArray.length > 2)
-    {
+    if (histArray.length > 2) {
         bc += "<a data-role='breadcrumb' onclick='clearHistory()' href='" + DEFAULTPAGE + "'>Home</a>";
     }
     bc += "</p>";
@@ -175,25 +174,21 @@ function getBreadcrumbs()
 
 //functions for the history
 
-function historyBack()
-{
+function historyBack() {
     histArray.pop();
     histArray.pop();
 }
 
-function clearHistory()
-{
+function clearHistory() {
     histArray = [];
     console.log(histArray);
 }
 
-function addHistory()
-{
+function addHistory() {
     histArray.push(getHash());
 }
 
-function goBackOnePage()
-{
+function goBackOnePage() {
     let temp = [...histArray];
 
     temp.pop();
@@ -201,7 +196,59 @@ function goBackOnePage()
     return p != undefined ? p : DEFAULTPAGE;
 }
 
-function b()
-{
+function b() {
+
+}
+
+/**
+ * searches for [@page[#filename]]
+ * @param {string} text - the pulled file as string
+ */
+async function pullAdditionalData(rawText) {
+
+    let tags = [];
+    const regex = new RegExp(EMBEDDING_TAG);
+    console.log(regex);
+    let importTags = [];
+
+    let retStr = rawText;
+
+    while ((tags = regex.exec(rawText)) !== null) {
+        console.log(`Found ${tags[0]}. Next starts at ${regex.lastIndex}.`);
+        let fileName = tags[0].split(" ")[1];
+        if (fileName != null) {
+            let t = {
+                file: fileName,
+                string: tags[0]
+            };
+
+            let text = await replaceWith(t);
+
+            console.log(text);
+            retStr = retStr.replace(tags[0], text);
+        }
+    }
     
+    return retStr;
+
+}
+
+function replaceWith(importTag) {
+    return new Promise((res, rej) => {
+
+            getFile(importTag.file)
+                .then((e) => {
+                    if (e.ok) {
+                        console.log(e);
+                        e.text().then(text => {
+                            console.log(text);
+                            res(text);
+                        });
+                    }
+                    else {
+                        rej(`Couldn't embed page ${i.string}`);
+                    }
+                });
+        
+    });
 }

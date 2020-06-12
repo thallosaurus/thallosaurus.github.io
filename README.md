@@ -12,5 +12,7 @@ This is the repo which hosts my personal homepage. Everything here is static and
 * NO trackers or cookies are being used
 * Recognizes System-wide Dark Mode setting (only works on supported browsers)
 
+(Check out all Features in the [md/CHANGELOG.md](md/CHANGELOG.md) of look at the end of the page)
+
 ## Bugs
 * You tell me ;)
