@@ -4,11 +4,9 @@ Looks like there was an Error while catching the content.
 Found a bug or noticed something strange? Report it [here](https://github.com/thallosaurus/thallosaurus.github.io/issues)`;
 
 const urlParams = new URL(location.href).searchParams;
-//const page = urlParams.get("p") || "index";
 
-//const page = getHash();
 const docmode = urlParams.get("doc") == 1;
-const useAnims = ((getHash() == DEFAULTPAGE) && !docmode) || urlParams.get("anims") == 1;
+const useAnims = ((getHash() == DEFAULTPAGE) && !docmode && getCookie("a") !== "shown") || urlParams.get("anims") == 1;
 const useCache = urlParams.get("nocache") != 1;
 
 let histArray = [getHash()];
@@ -31,10 +29,6 @@ function isPageInCache(pagename) {
 
 function addToCache(pagename, data) {
     if (!isPageInCache(pagename)) {
-        //let cpy = new Promise(data);
-        //        Object.copy(cpy, data);
-        //console.log(cpy);
-        //console.trace(pagename);
         return new Promise((res, rej) => {
             if (data.ok) {
                 data.text().then(d => {
@@ -58,17 +52,6 @@ function getFile(file) {
 }
 
 async function getPage(file) {
-    /* if (!isPageInCache()) {
-        return getFile(file).then(e => {
-            addToCache(file, e);
-            return e;
-        });
-    }
-    else {
-        console.log(`Loaded ${file} from cache`);
-        return getPageFromCache(file);
-    } */
-
     if (!isPageInCache(file)) {
         console.log(`Loaded ${file} from the internet`);
 
@@ -76,8 +59,6 @@ async function getPage(file) {
             await addToCache(file, e);
             return getPageFromCache(file);
         }).catch((r) => {
-            //console.log(r);
-            //return "There was an Error while fetching " + file + "\n(" + r + ")";
             return LOADINGERROR + `\n\n(${r.status} - ${r.statusText})`;
         });
     }
@@ -89,6 +70,7 @@ async function getPage(file) {
 
 window.onload = function () {
     this.registerHashListener();
+    initObserver();
 
     this.getFile("elements.json")
         .then((data) => {
@@ -122,6 +104,8 @@ async function asyncCreateFromObject(jsonMap) {
     for (let i = 0; i < jsonMap.length; i++) {
         await this.animObject(jsonMap[i]);
     }
+
+    setCookie("a", "shown");
 
     unhideText();
 }
@@ -294,7 +278,7 @@ async function pullAdditionalData(rawText) {
         retStr = retStr.replace(c_tags[0], c_json);
     }
 
-    console.log(retStr);
+    //console.log(retStr);
 
     return retStr;
 }
@@ -323,3 +307,35 @@ function getCacheContentAsJSON() {
     JSON.stringify(pageCache) + 
     "\n```\n\n";
 }
+
+//navbar
+function initObserver(sel = "nav.blackBg")
+{
+    const stickyElem = document.querySelector(sel);
+    console.log(stickyElem);
+
+    const observer = new IntersectionObserver(([e]) => e.target.classList.toggle("isSticky", e.intersectionRatio < 1), {threshold: [1]});
+
+        observer.observe(stickyElem);
+}
+
+//cookies (thxx https://www.w3schools.com/js/js_cookies.asp)
+function setCookie(cname, cvalue) {
+    document.cookie = cname + "=" + cvalue + ";path=/";
+  }
+
+  function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+  }
