@@ -1,13 +1,17 @@
+/* Dark Theme */
 @media (prefers-color-scheme: dark) {
     :root {
         --background: black;
         --text: white;
+        --accent: darkred;
     }
 }
 
+/* Light Theme */
 @media (prefers-color-scheme: light) {
     :root {
         --background: white;
         --text: black;
+        --accent: darkblue;
     }
 }
