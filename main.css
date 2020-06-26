@@ -93,17 +93,6 @@ div#text_container {
     opacity: 0;
 }
 
-.show-when-sticky {
-    display: none !important;
-    opacity: 0;
-}
-
-.isSticky .show-when-sticky
-{
-    display: inline !important;
-    opacity: 1;
-}
-
 a[data-role='breadcrumb']
 {
     font-size: 25px;
@@ -214,6 +203,16 @@ code {
         /*margin-left: -20px;*/
         margin-right: 10px;
     }
+
+    .show-when-sticky {
+        display: none !important;
+        opacity: 0;
+    }
+    
+    .isSticky .show-when-sticky
+    {
+        display: none !important;
+    }
 }
 
 /* Desktop PCs */
@@ -259,6 +258,17 @@ code {
         content: "*";
         /*margin-left: -20px;*/
         margin-right: 30px;
+    }
+
+    .show-when-sticky {
+        display: none !important;
+        opacity: 0;
+    }
+    
+    .isSticky .show-when-sticky
+    {
+        display: inline !important;
+        opacity: 1;
     }
 }
 
