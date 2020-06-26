@@ -9,10 +9,6 @@ body {
     overflow-x: hidden;
 }
 
-.headerNormal {
-    width: 100%;
-}
-
 .blackBg {
     background-color: var(--background);
     color: var(--text);
@@ -66,6 +62,12 @@ ul#tabs {
     height: 2em;
     color: var(--text);
     margin-bottom: 2px;
+
+    width: max-content;
+    margin-left: auto;
+    margin-right: auto;
+
+    transition: width 1s linear;
 }
 
 nav {
@@ -91,13 +93,15 @@ div#text_container {
     opacity: 0;
 }
 
-/* legacy */
-a[href='#index']
+.show-when-sticky {
+    display: none !important;
+    opacity: 0;
+}
+
+.isSticky .show-when-sticky
 {
-    font-size: 25px;
-    background-color: var(--text) !important;
-    color: var(--background) !important;
-    padding: 5px;
+    display: inline !important;
+    opacity: 1;
 }
 
 a[data-role='breadcrumb']
@@ -142,14 +146,6 @@ a {
     margin-bottom: 1em;
     list-style: none;
 }
-
-/*
-.textContent li::before {
-    content: "*";
-    /*margin-left: -20px;*
-    margin-right: 30px;
-}*/
-
 .textContent li {
     padding-top: 10px;
     padding-bottom: 10px;
@@ -284,16 +280,6 @@ body::-webkit-scrollbar {
   .cover img {
       width: 50%;
       height: 50%;
-  }
-
-  /* sticky navbar */
-  .isSticky::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
   }
 
   .isSticky {
