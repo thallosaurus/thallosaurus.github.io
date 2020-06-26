@@ -2,7 +2,7 @@
 
 ## v0.6.1
 - fixed unclickable navbar
-- added a home link to navbar, hardcoded
+- added a home link to navbar, hardcoded (only on desktop for now)
 
 ## v0.6
 - added page cache
