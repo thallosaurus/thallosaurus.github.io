@@ -7,6 +7,7 @@ const urlParams = new URL(location.href).searchParams;
 
 const docmode = urlParams.get("doc") == 1;
 const useAnims = ((getHash() == DEFAULTPAGE) && !docmode && getCookie("a") !== "shown") || urlParams.get("anims") == 1;
+const useBreadcrumbs = urlParams.get("bc") != 0;
 const useCache = urlParams.get("nocache") != 1;
 
 let histArray = [getHash()];
@@ -204,7 +205,7 @@ function getBreadcrumbs() {
         bc += "<a data-role='breadcrumb' onclick='clearHistory()' href='" + DEFAULTPAGE + "'>Home</a>";
     }
     bc += "</p>";
-    return getHash() != DEFAULTPAGE ? bc : "";
+    return getHash() != DEFAULTPAGE && useBreadcrumbs ? bc : "";
 }
 
 //functions for the history
@@ -289,7 +290,6 @@ function replaceWith(importTag) {
             .then((e) => {
                 res(e);
             });
-
     });
 }
 
