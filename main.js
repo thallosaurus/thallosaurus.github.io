@@ -48,7 +48,6 @@ function getPageFromCache(pagename) {
 }
 
 function getFile(file) {
-    //console.log(`loading file ${file} from online`);
     return fetch(file);
 }
 
@@ -86,7 +85,6 @@ window.onload = function () {
 }
 
 function showPage() {
-    //document.getElementById("hider").className = "show";
     document.body.className = "";
 }
 
@@ -115,8 +113,6 @@ function animObject(obj) {
     return new Promise((res, rej) => {
         let text = obj.text;
         let index = 0;
-
-        //console.log(obj);
 
         //clear content
         if (useAnims) {
@@ -147,14 +143,13 @@ function animObject(obj) {
 function insertContent(page) {
     let p = sanitizeFilename(page);
 
-    //console.log(p);
     getPage(`${docmode ? "docs/" : "md/"}${p}.md`).then(async (t) => {
         let fullPage = await pullAdditionalData(t);
 
         writeToContent(fullPage);
         hljs.initHighlighting();
     });
-    //});
+
     if (1 == 2) {
         throw data;
     };
@@ -241,9 +236,6 @@ function b() {
  * @param {string} text - the pulled file as string
  */
 async function pullAdditionalData(rawText) {
-
-    //console.log(rawText);
-
     if (typeof rawText === "Exception")
     {
         console.log("There was an exception");
@@ -278,8 +270,6 @@ async function pullAdditionalData(rawText) {
         console.log(c_json);
         retStr = retStr.replace(c_tags[0], c_json);
     }
-
-    //console.log(retStr);
 
     return retStr;
 }
@@ -322,9 +312,9 @@ function initObserver(sel = "nav.blackBg")
 //cookies (thxx https://www.w3schools.com/js/js_cookies.asp)
 function setCookie(cname, cvalue) {
     document.cookie = cname + "=" + cvalue + ";path=/";
-  }
+}
 
-  function getCookie(cname) {
+function getCookie(cname) {
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);
     var ca = decodedCookie.split(';');
