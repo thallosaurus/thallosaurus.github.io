@@ -1,0 +1,18 @@
+div span {
+  font-size: 24px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+* {
+  margin: 0px;
+  padding: 0px;
+}
+
+.black {
+  background-color: black;
+  color: white;
+}
+
+.clipping {
+  background-color: red;
+}
