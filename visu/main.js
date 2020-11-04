@@ -144,7 +144,7 @@ function initMicrophone(fnCtx, fnAnalyser) {
 }
 
 function initAudioFile(fileName, fnCtx, fnAnalyser) {
-  fetch("sounds/" + fileName + ".mp3").then((res) => {
+  fetch("songs/" + fileName + ".mp3").then((res) => {
     if (res.ok) {
       return res.arrayBuffer();
     }
