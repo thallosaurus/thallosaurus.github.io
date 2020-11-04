@@ -13,6 +13,9 @@
     <!-- Rows are div -->
     <!-- columns are span -->
   </div>
-  <button value="Start" onclick="initAudioContext()">Klicke hier um das Mikrofon zu aktivieren</button>
+  <button onclick="initAudioContext()">Klicke hier um das Mikrofon zu aktivieren</button>
+  <button onclick="disconnect()">Disconnect</button>
+  <label for="gain">Gain:</label>
+  <input type="range" oninput="changeGain(this)" name="gain"><br>
 </body>
 </html>

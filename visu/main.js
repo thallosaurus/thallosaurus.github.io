@@ -1,8 +1,8 @@
-let content, audioCtx, analyser, dataArray, htmlElements;
+let content, audioCtx, analyser, gain, dataArray, htmlElements, cbStream, mediaStream, playing;
 
 const height = parseInt(getParam("h") ?? 15);
 const width = 64;
-const DEFAULT_GLYPH = "X";
+const DEFAULT_GLYPH = "";
 
 window.onload = () => {
   if (getParam("dbg")) {
@@ -10,8 +10,8 @@ window.onload = () => {
   }
 
   content = document.querySelector("#content");
-  htmlElements = [];
   createBackground(width, height, content);
+  startCapture(0);
 }
 
 function createBackground(fnWidth, fnHeight, fnWindow = null) {
@@ -31,7 +31,7 @@ function createBackground(fnWidth, fnHeight, fnWindow = null) {
 }
 
 function getXY(x, y) {
-  let cell = document.querySelector(`div[data-row-number='${y}'] span[data-col-number='${x}']`);
+  let cell = content.querySelector(`div[data-row-number='${y}'] span[data-col-number='${x}']`);
   return cell;
 }
 
@@ -44,32 +44,55 @@ function initAudioContext() {
   let AudioContext_ = null;
   if (!("AudioContext" in window) /*&& !AudioContext*/) AudioContext_ = window.webkitAudioContext;
 
-  audioCtx = new (AudioContext_ ?? AudioContext)({
-    latencyHint: 'interactive'
-    // sampleRate: 44100,
-  });
+  if (!audioCtx) {
+    audioCtx = new (AudioContext_ ?? AudioContext)({
+      latencyHint: 'interactive'
+      // sampleRate: 44100,
+    });
+  }
+  disconnect(); //Disconnect old inputs, if there are any
+
+  // debugger;
   analyser = audioCtx.createAnalyser();
   analyser.fftSize = width * 2;
   dataArray = new Uint8Array(analyser.frequencyBinCount);
   initMicrophone(audioCtx, analyser);
 }
 
-async function initMicrophone(fnCtx) {
-    navigator.mediaDevices.getUserMedia({ audio: true }).then((sound) => {
-      let cbStream = fnCtx.createMediaStreamSource(sound);
-      cbStream.connect(analyser);
-      capture(analyser, dataArray);
-    }).catch((e) => {
-    console.log(e);
-  });
+function initGain(fnCtx) {
+  gain = fnCtx.createGain();
+  return gain;
 }
 
-function capture(fnAnalyser, array) {
-  analyser.getByteFrequencyData(dataArray);
+function initMicrophone(fnCtx) {
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then((sound) => {
+      // debugger;
+      mediaStream = sound;
+      cbStream = fnCtx.createMediaStreamSource(sound);
+      let gain = initGain(fnCtx);
+      gain.connect(analyser);
+      cbStream.connect(gain);
+      // cbStream.connect(analyser);
+      playing = true;
+      // capture();
+    }).catch((e) => {
+      console.log(e);
+    });
+}
+
+function startCapture(e) {
   reinit(); //reset the screen before modifying the screen
-  for (let i = 0; i < dataArray.length; i++) {
-    let h = parseInt(map(dataArray[i], 0, 255, 0, height - 1));
-    let opacity = map(dataArray[i], 0, 255, 0, 1);
+  // console.log(e);
+  analyser?.getByteFrequencyData(dataArray);
+  if (dataArray?.length > 0) drawToDOM(dataArray);
+  requestAnimationFrame(startCapture);
+}
+
+function drawToDOM(fnDataArray) {
+  for (let i = 0; i < fnDataArray.length; i++) {
+    let h = parseInt(map(fnDataArray[i], 0, 255, 0, height - 1));
+    let opacity = map(fnDataArray[i], 0, 255, 0, 1);
 
     for (let k = 0; k < h + 1; k++) {
       let fg = getXY(i, k);
@@ -90,7 +113,6 @@ function capture(fnAnalyser, array) {
       }
     }
   }
-  requestAnimationFrame(() => { capture(fnAnalyser, dataArray) });
 }
 
 function map(value, low1, high1, low2, high2) {
@@ -107,6 +129,12 @@ function reinit() {
   }
 }
 
+function disconnect() {
+  if (playing) gain.disconnect(analyser);
+  mediaStream?.getTracks()[0].stop();
+  playing = false;
+}
+
 function getParam(param) {
   const urlParams = new URLSearchParams(window.location.search);
   return urlParams.get(param);
@@ -117,4 +145,8 @@ function createDebugAdapter(id) {
   dbg.dataset.consolejsChannel = id;
   dbg.src = "https://remotejs.com/agent/agent.js";
   document.head.append(dbg);
+}
+
+function changeGain(elem) {
+  gain.gain.value = elem.value / 100 * 20;
 }
