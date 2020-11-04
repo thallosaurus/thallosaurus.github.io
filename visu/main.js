@@ -40,7 +40,7 @@ function initAudioContext() {
 
   // let acAudioContext = window.AudioContext || window.webkitAudioContext;
 
-  if (!"AudioContext" in window /*&& !AudioContext*/) AudioContext = window.webkitAudioContext;
+  if (!("AudioContext" in window) /*&& !AudioContext*/) AudioContext = window.webkitAudioContext;
 
   audioCtx = new AudioContext({
     latencyHint: 'interactive',
