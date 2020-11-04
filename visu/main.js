@@ -5,6 +5,7 @@
  * cl: Bestimmt, ab wann die Anzeige "clippt" (gesamte höhe - cl)
  * tb: Aktiviert den Talkback Modus (Achtung, bitte Lautsprecher leiser drehen)
  * dbg: Verbindet zu remotejs.com mit dem angegeben Token (1 für Popup um ID einzugeben)
+ * file: Gibt an, welche Externe Datei statt des Mikrofons genutzt werden soll
  */
 
 let content, audioCtx, analyser, gain, dataArray, peakArray, htmlElements, cbStream, mediaStream, playing, fpsCounter;
@@ -17,6 +18,10 @@ const useInfile = getParam("file") != null && getParam("file") != "";
 const DEFAULT_GLYPH = "";
 const peakHoldTime = 1000;
 
+/**
+ * Gibt eine Zahl aus, welche zwischen 2^4 und 2^15 liegt
+ * @param {number} input Die Zahl, welche gerundet werden soll
+ */
 function fft(input) {
   for (let pow = 4; pow < 16; pow++) {
     let v = 2 ** pow;
@@ -174,6 +179,9 @@ function startCapture(e) {
   }, 10);
 }
 
+/**
+ * Initialisiert den FPS Counter
+ */
 function countFPS() {
   fpsCounter ??= document.querySelector("#fps");
   fpsCounter.value = fps();
@@ -221,10 +229,16 @@ function drawToDOM(fnDataArray, fnPeakArray) {
   }
 }
 
+/**
+ * Mapping Hilfsfunktion
+ */
 function map(value, low1, high1, low2, high2) {
   return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
 }
 
+/**
+ * Setzt die Tabellarische Anzeige zurück
+ */
 function reinit() {
   content.querySelectorAll('span[data-modified="1"]').forEach((f) => {
     f.className = "";
