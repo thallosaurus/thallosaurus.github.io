@@ -33,7 +33,7 @@ function getXY(x, y) {
 
 // AudioContext Initialization and all other stuff you need to process Audio Data
 function initAudioContext() {
-  if (!"AudioContext" in window || !AudioContext) throw new Error("Failed to catch AudioContext - Not supported");
+   if (!"AudioContext" in window || !AudioContext) {alert("AudioContext not supported"); throw new Error("Failed to catch AudioContext - Not supported")};
 
   audioCtx = new AudioContext();
   analyser = audioCtx.createAnalyser();
@@ -43,11 +43,15 @@ function initAudioContext() {
 }
 
 function initMicrophone(fnCtx) {
-  navigator.getUserMedia({ audio: true }, (sound) => {
-    let cbStream = fnCtx.createMediaStreamSource(sound);
-    cbStream.connect(analyser);
-    capture(analyser, dataArray);
-  }, (error) => {throw error});
+  try {
+    navigator.getUserMedia({ audio: true }, (sound) => {
+      let cbStream = fnCtx.createMediaStreamSource(sound);
+      cbStream.connect(analyser);
+      capture(analyser, dataArray);
+    }, (error) => { alert(error); throw error });
+  } catch (e) {
+    alert(e.message);
+  }
 }
 
 function capture(fnAnalyser, array) {
