@@ -27,6 +27,7 @@ function createBackground(fnWidth, fnHeight, fnWindow = null) {
       row.append(col);
     }
     fnWindow.append(row);
+    // fnWindow.append(document.createElement("br"));
   }
 }
 
