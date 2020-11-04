@@ -16,17 +16,6 @@ window.onload = () => {
 function createBackground(fnWidth, fnHeight, fnWindow = null) {
   if (!fnWindow) throw new Error("You didn't specify an element");
 
-/*   for (let lY = 0; lY < fnHeight; lY++) {
-    let row = document.createElement("div");
-    row.dataset.rowNumber = lY
-    for (let lX = 0; lX < fnWidth; lX++) {
-      let col = document.createElement("span");
-      col.innerText = DEFAULT_GLYPH;
-      col.dataset.colNumber = lX;
-      row.append(col);
-    }
-    fnWindow.append(row);
-  } */
   for (let lY = fnHeight - 1; lY > -1; lY--) {
     let row = document.createElement("div");
     row.dataset.rowNumber = lY
@@ -47,9 +36,14 @@ function getXY(x, y) {
 
 // AudioContext Initialization and all other stuff you need to process Audio Data
 function initAudioContext() {
-  if (!"AudioContext" in window || !AudioContext) {alert("AudioContext not supported"); throw new Error("Failed to catch AudioContext - Not supported")};
+  // if (!"AudioContext" in window || !AudioContext) {alert("AudioContext not supported"); throw new Error("Failed to catch AudioContext - Not supported")};
 
-  audioCtx = new AudioContext();
+  let AudioContext = window.AudioContext || window.webkitAudioContext;
+
+  audioCtx = new AudioContext({
+    latencyHint: 'interactive',
+    sampleRate: 44100,
+  });
   analyser = audioCtx.createAnalyser();
   analyser.fftSize = width * 2;
   dataArray = new Uint8Array(analyser.frequencyBinCount);
