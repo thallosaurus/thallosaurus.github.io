@@ -143,11 +143,21 @@ function getParam(param) {
 
 function createDebugAdapter(id) {
   let dbg = document.createElement("script");
-  dbg.dataset.consolejsChannel = id;
-  dbg.src = "https://remotejs.com/agent/agent.js";
-  document.head.append(dbg);
+  if (id == "1") {
+    id = prompt("Debug-Token:");
+  }
+  
+  if (id !== null) {
+    dbg.dataset.consolejsChannel = id;
+    dbg.src = "https://remotejs.com/agent/agent.js";
+    document.head.append(dbg);
+  }
 }
 
 function changeGain(elem) {
   gain.gain.value = elem.value / 100 * 20;
+}
+
+function showCSSGrid() {
+  document.querySelectorAll("*").forEach(function (a) { a.style.outline = "1px solid #" + (~~(Math.random() * (1 << 24))).toString(16) });
 }
