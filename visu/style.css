@@ -20,7 +20,8 @@ div span {
 div {
   margin-left: var(--visu-width);
   height: var(--visu-height);
-  width: 100%;
+  /* width: 100%; */
+  /* overflow: scroll; */
 }
 
 div:before {

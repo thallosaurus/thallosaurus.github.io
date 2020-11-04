@@ -1,7 +1,7 @@
 let content, audioCtx, analyser, gain, dataArray, htmlElements, cbStream, mediaStream, playing;
 
 const height = parseInt(getParam("h") ?? 15);
-const width = 64;
+const width = parseInt(getParam("bc") ?? 64);
 const DEFAULT_GLYPH = "";
 
 window.onload = () => {
@@ -143,7 +143,7 @@ function getParam(param) {
 
 function createDebugAdapter(id) {
   let dbg = document.createElement("script");
-  if (id == "1") {
+  if (id == 1) {
     id = prompt("Debug-Token:");
   }
   
