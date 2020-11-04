@@ -3,6 +3,7 @@ let content, audioCtx, analyser, gain, dataArray, peakArray, htmlElements, cbStr
 const height = parseInt(getParam("h") ?? 15);
 const width = fft(getParam("bc") ?? 16);
 const clipLevel = parseInt(getParam("cl") ?? 5);
+const talkback = parseInt(getParam("tb") ?? 0) == 1;
 const DEFAULT_GLYPH = "";
 const peakHoldTime = 1000;
 
@@ -37,11 +38,13 @@ function createBackground(fnWidth, fnHeight, fnWindow = null) {
   for (let lY = fnHeight - 1; lY > -1; lY--) {
     let row = document.createElement("div");
     row.dataset.rowNumber = lY
+    row.style.width = (width * 25) + "px";
     for (let lX = 0; lX < fnWidth; lX++) {
       let col = document.createElement("span");
       col.innerText = DEFAULT_GLYPH;
       col.dataset.colNumber = lX;
       row.append(col);
+      // await sleep(10);
     }
     fnWindow.append(row);
     // fnWindow.append(document.createElement("br"));
@@ -92,11 +95,15 @@ function initMicrophone(fnCtx, fnAnalyser) {
       let gain = initGain(fnCtx);
       gain.connect(fnAnalyser);
       cbStream.connect(gain);
-      // cbStream.connect(analyser);
+      if (talkback) {
+        alert("Bitte jetzt leiser drehen");
+        cbStream.connect(audioCtx.destination);
+      }
       playing = true;
       // capture();
     }).catch((e) => {
       console.log(e);
+      alert(e);
     });
 }
 
@@ -104,6 +111,7 @@ function startCapture(e) {
   reinit(); //reset the screen before modifying the screen
   // console.log(e);
   analyser?.getByteFrequencyData(dataArray);
+  // analyser?.getByteTimeDomainData(dataArray);
   transferToPeakMeter(dataArray, peakArray, e);
   if (dataArray?.length > 0) drawToDOM(dataArray, peakArray);
   requestAnimationFrame(startCapture);
@@ -126,7 +134,10 @@ function drawToDOM(fnDataArray, fnPeakArray) {
       if (h > height - clipLevel && k > height - clipLevel) {
         fg.className = "clipping";
       } else {
-        fg.className = "black";
+        fg.className = "meter";
+        let color = getRedishTone(fnDataArray[i]);
+        fg.style.backgroundColor = color;
+        // console.log(getRedishTone(fnDataArray[i]));
       }
 
       if (k == h && k != 0 && fg.className == "black") {
@@ -142,12 +153,15 @@ function drawToDOM(fnDataArray, fnPeakArray) {
       // elem.className = "clip";
       // debugger;
     // } else {
+      // debugger;
       elem.className = "peak";
     // }
   }
+  // debugger;
 }
 
 function map(value, low1, high1, low2, high2) {
+  // debugger;
   return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
 }
 
@@ -157,6 +171,7 @@ function reinit() {
       // f.innerText = DEFAULT_GLYPH;
       f.className = "";
       f.style.opacity = 1;
+      f.style.backgroundColor = "";
     }
   }
 }
@@ -227,4 +242,17 @@ class Peak {
 
 function getTrueOpacityValue(value) {
   return map(value % height, 0, height, 0, 1);
+}
+
+function getRedishTone(value) {
+  let base = 0xadfc;
+  // return value << 4;
+  // return "#" + ((value << 16) | base).toString(16);
+  return "#" + ((value << 16) | (0 << 8) | 255 - value).toString(16);
+}
+
+function sleep(time) {
+  return new Promise((res) => {
+    setTimeout(res, time);
+  });
 }

@@ -10,7 +10,7 @@
 div span {
   /* font-size: 24px; */
   /* font-family: 'Courier New', Courier, monospace; */
-  color: white;
+  /* color: white; */
   display: block;
   float: left;
   height: inherit;
@@ -23,7 +23,8 @@ div {
   margin-left: var(--visu-width);
   height: var(--visu-height);
   /* width: 100%; */
-  /* overflow: scroll; */
+  /* width: calc(attr(data-width integer) * var(--visu-width)); */
+  /* overflow: visible; */
 }
 
 div:before {
@@ -40,8 +41,8 @@ div:before {
   padding: 0px;
 }
 
-.black {
-  background-color: green;
+.meter {
+  /* background-color: green; */
   /* color: white; */
   color: black;
 }
