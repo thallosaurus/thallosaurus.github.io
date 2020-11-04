@@ -53,15 +53,15 @@ function initAudioContext() {
 }
 
 function initMicrophone(fnCtx) {
-  try {
+  // try {
     navigator.getUserMedia({ audio: true }, (sound) => {
       let cbStream = fnCtx.createMediaStreamSource(sound);
       cbStream.connect(analyser);
       capture(analyser, dataArray);
     }, (error) => { alert(error); throw error });
-  } catch (e) {
+  /*} catch (e) {
     alert(e.message + ":" + e.lineNumber);
-  }
+  }*/
 }
 
 function capture(fnAnalyser, array) {
