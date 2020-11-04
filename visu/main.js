@@ -1,8 +1,17 @@
 let content, audioCtx, analyser, gain, dataArray, htmlElements, cbStream, mediaStream, playing;
 
 const height = parseInt(getParam("h") ?? 15);
-const width = parseInt(getParam("bc") ?? 64);
+const width = fft(getParam("bc") ?? 64);
 const DEFAULT_GLYPH = "";
+
+function fft(input) {
+  for (let pow = 4; pow < 16; pow++) {
+    let v = 2 ** pow;
+    if (input > v) {
+      continue;
+    } else return v;
+  }
+}
 
 window.onload = () => {
   if (getParam("dbg")) {
@@ -146,7 +155,7 @@ function createDebugAdapter(id) {
   if (id == 1) {
     id = prompt("Debug-Token:");
   }
-  
+
   if (id !== null) {
     dbg.dataset.consolejsChannel = id;
     dbg.src = "https://remotejs.com/agent/agent.js";
