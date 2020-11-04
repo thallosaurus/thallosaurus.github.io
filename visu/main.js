@@ -53,19 +53,17 @@ function initAudioContext() {
   initMicrophone(audioCtx, analyser);
 }
 
-function initMicrophone(fnCtx) {
-  try {
-    navigator.getUserMedia({ audio: true }, (sound) => {
+async function initMicrophone(fnCtx) {
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((sound) => {
       let cbStream = fnCtx.createMediaStreamSource(sound);
       cbStream.connect(analyser);
       capture(analyser, dataArray);
-    }, (error) => { alert(error); throw error });
-  } catch (e) {
+    }).catch((e) => {
     console.log(e);
     console.log(e.message + ": " + e.lineNumber);
     console.log(e.stack);
     // alert(e.message + ":" + e.lineNumber);
-  }
+  });
 }
 
 function capture(fnAnalyser, array) {
