@@ -63,6 +63,7 @@ function initMicrophone(fnCtx) {
   } catch (e) {
     console.log(e);
     console.log(e.message + ": " + e.lineNumber);
+    console.log(e.stack);
     // alert(e.message + ":" + e.lineNumber);
   }
 }
