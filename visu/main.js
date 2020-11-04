@@ -1,13 +1,14 @@
 let content, audioCtx, analyser, dataArray, htmlElements;
 
-const height = 20;
-const width = 128;
-const DEFAULT_GLYPH = "0";
+const height = parseInt(getParam("h") ?? 15);
+const width = 64;
+const DEFAULT_GLYPH = "X";
 
 window.onload = () => {
   if (getParam("dbg")) {
     createDebugAdapter(getParam("dbg"));
   }
+
   content = document.querySelector("#content");
   htmlElements = [];
   createBackground(width, height, content);
@@ -44,8 +45,8 @@ function initAudioContext() {
   if (!("AudioContext" in window) /*&& !AudioContext*/) AudioContext_ = window.webkitAudioContext;
 
   audioCtx = new (AudioContext_ ?? AudioContext)({
-    latencyHint: 'interactive',
-    sampleRate: 44100,
+    latencyHint: 'interactive'
+    // sampleRate: 44100,
   });
   analyser = audioCtx.createAnalyser();
   analyser.fftSize = width * 2;
@@ -60,9 +61,6 @@ async function initMicrophone(fnCtx) {
       capture(analyser, dataArray);
     }).catch((e) => {
     console.log(e);
-    console.log(e.message + ": " + e.lineNumber);
-    console.log(e.stack);
-    // alert(e.message + ":" + e.lineNumber);
   });
 }
 
@@ -80,7 +78,7 @@ function capture(fnAnalyser, array) {
         throw Error("Not a HTML element, h: " + h + " w: " + i);
       }
 
-      fg.innerText = 0;
+      // fg.innerText = 0;
       if (h > height - 5 && k > height - 5) {
         fg.className = "clipping";
       } else {
