@@ -2,6 +2,7 @@ let content, audioCtx, analyser, gain, dataArray, htmlElements, cbStream, mediaS
 
 const height = parseInt(getParam("h") ?? 15);
 const width = fft(getParam("bc") ?? 64);
+const clipLevel = parseInt(getParam("cl") ?? 5);
 const DEFAULT_GLYPH = "";
 
 function fft(input) {
@@ -112,7 +113,7 @@ function drawToDOM(fnDataArray) {
       }
 
       // fg.innerText = 0;
-      if (h > height - 5 && k > height - 5) {
+      if (h > height - clipLevel && k > height - clipLevel) {
         fg.className = "clipping";
       } else {
         fg.className = "black";
