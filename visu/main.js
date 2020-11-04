@@ -1,9 +1,19 @@
-let content, audioCtx, analyser, gain, dataArray, peakArray, htmlElements, cbStream, mediaStream, playing;
+/**
+ * URL-Parameters:
+ * h: Bestimmt die Anzahl der Reihen
+ * bc: Bestimmt die Anzahl der Spalten (16 - 32768, wird auf die nächste Hochzahl gerundet)
+ * cl: Bestimmt, ab wann die Anzeige "clippt" (gesamte höhe - cl)
+ * tb: Aktiviert den Talkback Modus (Achtung, bitte Lautsprecher leiser drehen)
+ * dbg: Verbindet zu remotejs.com mit dem angegeben Token (1 für Popup um ID einzugeben)
+ */
+
+let content, audioCtx, analyser, gain, dataArray, peakArray, htmlElements, cbStream, mediaStream, playing, fpsCounter;
 
 const height = parseInt(getParam("h") ?? 15);
 const width = fft(getParam("bc") ?? 16);
 const clipLevel = parseInt(getParam("cl") ?? 5);
 const talkback = parseInt(getParam("tb") ?? 0) == 1;
+const useInfile = getParam("file") != null && getParam("file") != "";
 const DEFAULT_GLYPH = "";
 const peakHoldTime = 1000;
 
@@ -17,82 +27,104 @@ function fft(input) {
   return 2 ** 15;
 }
 
-function initMicAndContext() {
-  initAudioContext();
-  initMicrophone(audioCtx, analyser);
-}
-
 window.onload = () => {
   if (getParam("dbg")) {
     createDebugAdapter(getParam("dbg"));
   }
 
   content = document.querySelector("#content");
+  countFPS();
   createBackground(width, height, content);
   startCapture(0);
 }
 
+/**
+ * Initialisiert den AudioContext und das Mikrofon
+ */
+function initMicAndContext() {
+  initAudioContext();
+  if (useInfile) {
+    initAudioFile(getParam("file"), audioCtx, analyser);
+  } else initMicrophone(audioCtx, analyser);
+}
+
+/**
+ * Erstellt die "Tabelle"
+ * @param {number} fnWidth Die Breite der Tabelle
+ * @param {number} fnHeight Die Höhe der Tabelle
+ * @param {HTMLElement} fnWindow Der Platzhalter im DOMContentTree
+ */
 function createBackground(fnWidth, fnHeight, fnWindow = null) {
   if (!fnWindow) throw new Error("You didn't specify an element");
 
   for (let lY = fnHeight - 1; lY > -1; lY--) {
     let row = document.createElement("div");
-    row.dataset.rowNumber = lY
-    row.style.width = (width * 25) + "px";
+    row.dataset.rowNumber = lY;
+    let wQty = parseInt(getComputedStyle(content).getPropertyValue("--visu-width"));
+    row.style.width = (width * wQty) + "px";
+
     for (let lX = 0; lX < fnWidth; lX++) {
       let col = document.createElement("span");
       col.innerText = DEFAULT_GLYPH;
       col.dataset.colNumber = lX;
+      col.dataset.modified = 0;
       row.append(col);
-      // await sleep(10);
     }
     fnWindow.append(row);
-    // fnWindow.append(document.createElement("br"));
   }
 }
 
+/**
+ * Hole Zelle aus Tabelle mit Koordinaten
+ * @param {number} x X-Koordinate
+ * @param {number} y Y-Koordinate
+ */
 function getXY(x, y) {
   let cell = content.querySelector(`div[data-row-number='${y}'] span[data-col-number='${x}']`);
   return cell;
 }
 
-// AudioContext Initialization and all other stuff you need to process Audio Data
+/**
+ * Initialisiert den AudioContext. Muss vor Initialisierung der Eingabequellen aufgerufen werden
+ */
 function initAudioContext() {
-  // if (!"AudioContext" in window || !AudioContext) {alert("AudioContext not supported"); throw new Error("Failed to catch AudioContext - Not supported")};
-
-  // let acAudioContext = window.AudioContext || window.webkitAudioContext;
-
   let AudioContext_ = null;
   if (!("AudioContext" in window) /*&& !AudioContext*/) AudioContext_ = window.webkitAudioContext;
 
   if (!audioCtx) {
     audioCtx = new (AudioContext_ ?? AudioContext)({
       latencyHint: 'interactive'
-      // sampleRate: 44100,
     });
   }
   disconnect(); //Disconnect old inputs, if there are any
 
-  // debugger;
   analyser = audioCtx.createAnalyser();
   analyser.fftSize = width * 2;
   dataArray = new Uint8Array(analyser.frequencyBinCount);
   initPeakMeter();
-  // initMicrophone(audioCtx, analyser);
 }
 
+/**
+ * Initialisert das GainNode
+ * @param {AudioContext} fnCtx Der bestehende AudioContext
+ */
 function initGain(fnCtx) {
   gain = fnCtx.createGain();
   return gain;
 }
 
+/**
+ * Initialisert das Mikrofon und verbindet es an den bestehenden AudioContext
+ * @param {AudioContext} fnCtx Der bestehende AudioContext
+ * @param {AnalyserNode} fnAnalyser Der AudioAnalyser welcher das Signal prozessiert
+ */
 function initMicrophone(fnCtx, fnAnalyser) {
   navigator.mediaDevices.getUserMedia({ audio: true })
     .then((sound) => {
       // debugger;
       mediaStream = sound;
       cbStream = fnCtx.createMediaStreamSource(sound);
-      let gain = initGain(fnCtx);
+      gain = initGain(fnCtx);
       gain.connect(fnAnalyser);
       cbStream.connect(gain);
       if (talkback) {
@@ -100,27 +132,62 @@ function initMicrophone(fnCtx, fnAnalyser) {
         cbStream.connect(audioCtx.destination);
       }
       playing = true;
-      // capture();
     }).catch((e) => {
       console.log(e);
       alert(e);
     });
 }
 
-function startCapture(e) {
-  reinit(); //reset the screen before modifying the screen
-  // console.log(e);
-  analyser?.getByteFrequencyData(dataArray);
-  // analyser?.getByteTimeDomainData(dataArray);
-  transferToPeakMeter(dataArray, peakArray, e);
-  if (dataArray?.length > 0) drawToDOM(dataArray, peakArray);
-  requestAnimationFrame(startCapture);
+function initAudioFile(fileName, fnCtx, fnAnalyser) {
+  fetch(fileName + ".mp3").then((res) => {
+    if (res.ok) {
+      return res.arrayBuffer();
+    }
+  }).then(res => {
+
+    fnCtx.decodeAudioData(res, (data) => {
+      const source = fnCtx.createBufferSource();
+      source.buffer = data;
+
+      gain = initGain(fnCtx);
+      gain.connect(fnAnalyser);
+      source.connect(gain);
+
+      fnAnalyser.connect(fnCtx.destination);
+
+      source.start();
+    });
+  })
 }
 
+/**
+ * Loop Funktion, welche den Bildschirm füllt
+ * @param {number} e 
+ */
+function startCapture(e) {
+  reinit(); //reset the screen before modifying the screen
+  analyser?.getByteFrequencyData(dataArray);
+  transferToPeakMeter(dataArray, peakArray, e);
+  if (dataArray?.length > 0) drawToDOM(dataArray, peakArray);
+  setTimeout(() => {
+    requestAnimationFrame(startCapture);
+  }, 10);
+}
+
+function countFPS() {
+  fpsCounter ??= document.querySelector("#fps");
+  fpsCounter.value = fps();
+  requestAnimationFrame(countFPS);
+}
+
+/**
+ * Malt die Kästchen im DOM an
+ * @param {*} fnDataArray 
+ * @param {*} fnPeakArray 
+ */
 function drawToDOM(fnDataArray, fnPeakArray) {
   for (let i = 0; i < fnDataArray.length; i++) {
     let h = parseInt(map(fnDataArray[i], 0, 255, 0, height - 1));
-    // let opacity = map(fnDataArray[i], 0, 255, 0, 1);
     let opacity = getTrueOpacityValue(fnDataArray[i]);
 
     for (let k = 0; k < h + 1; k++) {
@@ -130,17 +197,17 @@ function drawToDOM(fnDataArray, fnPeakArray) {
         throw Error("Not a HTML element, h: " + h + " w: " + i);
       }
 
-      // fg.innerText = 0;
       if (h > height - clipLevel && k > height - clipLevel) {
         fg.className = "clipping";
+        fg.dataset.modified = 1;
       } else {
         fg.className = "meter";
         let color = getRedishTone(fnDataArray[i]);
         fg.style.backgroundColor = color;
-        // console.log(getRedishTone(fnDataArray[i]));
+        fg.dataset.modified = 1;
       }
 
-      if (k == h && k != 0 && fg.className == "black") {
+      if (k == h && k != 0 && fg.className == "meter") {
         fg.style.opacity = opacity;
       }
     }
@@ -149,31 +216,22 @@ function drawToDOM(fnDataArray, fnPeakArray) {
   for (let i = 0; i < fnPeakArray?.length; i++) {
     let h = parseInt(map(fnPeakArray[i].value, 0, 255, 0, height - 1));
     let elem = getXY(i, h);
-    // if (h > height - clipLevel) {
-      // elem.className = "clip";
-      // debugger;
-    // } else {
-      // debugger;
-      elem.className = "peak";
-    // }
+    elem.className = "peak";
+    elem.dataset.modified = 1;
   }
-  // debugger;
 }
 
 function map(value, low1, high1, low2, high2) {
-  // debugger;
   return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
 }
 
 function reinit() {
-  for (let e of content.children) {
-    for (let f of e.children) {
-      // f.innerText = DEFAULT_GLYPH;
-      f.className = "";
-      f.style.opacity = 1;
-      f.style.backgroundColor = "";
-    }
-  }
+  content.querySelectorAll('span[data-modified="1"]').forEach((f) => {
+    f.className = "";
+    f.style.opacity = 1;
+    f.style.backgroundColor = "";
+    f.dataset.modified = 0;
+  });
 }
 
 function disconnect() {
@@ -201,7 +259,7 @@ function createDebugAdapter(id) {
 }
 
 function changeGain(elem) {
-  gain.gain.value = elem.value / 100 * 20;
+  //gain.gain.value = 100 - (100 / elem.value);/* / 100 * 2;*/
 }
 
 function showCSSGrid() {
@@ -209,7 +267,6 @@ function showCSSGrid() {
 }
 
 function initPeakMeter() {
-  // peakArray = new Uint8Array(dataArray.length);
   peakArray = new Array(dataArray.length).fill(new Peak(0, 0));
 }
 
@@ -230,7 +287,6 @@ class Peak {
   peak(v, i) {
     this.value = v;
     this.t = i;
-    // setTimeout({}, peakHoldTime);
   }
 
   update(ts) {
@@ -245,9 +301,6 @@ function getTrueOpacityValue(value) {
 }
 
 function getRedishTone(value) {
-  let base = 0xadfc;
-  // return value << 4;
-  // return "#" + ((value << 16) | base).toString(16);
   return "#" + ((value << 16) | (0 << 8) | 255 - value).toString(16);
 }
 
@@ -256,3 +309,21 @@ function sleep(time) {
     setTimeout(res, time);
   });
 }
+
+fps = (function () {
+  var lastLoop = (new Date()).getMilliseconds();
+  var count = 1;
+  var fps = 0;
+
+  return function () {
+    var currentLoop = (new Date()).getMilliseconds();
+    if (lastLoop > currentLoop) {
+      fps = count;
+      count = 1;
+    } else {
+      count += 1;
+    }
+    lastLoop = currentLoop;
+    return fps;
+  };
+}());
