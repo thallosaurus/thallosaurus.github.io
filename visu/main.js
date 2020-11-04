@@ -61,6 +61,7 @@ function initMicrophone(fnCtx) {
       capture(analyser, dataArray);
     }, (error) => { alert(error); throw error });
   } catch (e) {
+    console.log(e);
     console.log(e.message + ": " + e.lineNumber);
     // alert(e.message + ":" + e.lineNumber);
   }
