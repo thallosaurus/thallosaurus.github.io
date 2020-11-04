@@ -1,6 +1,6 @@
 :root {
-  --visu-height: 20px;
-  --visu-width: 20px;
+  --visu-height: 25px;
+  --visu-width: 25px;
 }
 
 #content {
@@ -15,6 +15,8 @@ div span {
   float: left;
   height: inherit;
   width: var(--visu-width);
+
+  /* border-radius: 50px; */
 }
 
 div {
@@ -47,4 +49,8 @@ div:before {
 .clipping {
   background-color: red;
   color: red;
+}
+
+.peak {
+  background-color: darkgreen;
 }

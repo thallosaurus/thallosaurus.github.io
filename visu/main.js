@@ -1,9 +1,10 @@
-let content, audioCtx, analyser, gain, dataArray, htmlElements, cbStream, mediaStream, playing;
+let content, audioCtx, analyser, gain, dataArray, peakArray, htmlElements, cbStream, mediaStream, playing;
 
 const height = parseInt(getParam("h") ?? 15);
-const width = fft(getParam("bc") ?? 64);
+const width = fft(getParam("bc") ?? 16);
 const clipLevel = parseInt(getParam("cl") ?? 5);
 const DEFAULT_GLYPH = "";
+const peakHoldTime = 1000;
 
 function fft(input) {
   for (let pow = 4; pow < 16; pow++) {
@@ -12,6 +13,12 @@ function fft(input) {
       continue;
     } else return v;
   }
+  return 2 ** 15;
+}
+
+function initMicAndContext() {
+  initAudioContext();
+  initMicrophone(audioCtx, analyser);
 }
 
 window.onload = () => {
@@ -67,7 +74,8 @@ function initAudioContext() {
   analyser = audioCtx.createAnalyser();
   analyser.fftSize = width * 2;
   dataArray = new Uint8Array(analyser.frequencyBinCount);
-  initMicrophone(audioCtx, analyser);
+  initPeakMeter();
+  // initMicrophone(audioCtx, analyser);
 }
 
 function initGain(fnCtx) {
@@ -75,14 +83,14 @@ function initGain(fnCtx) {
   return gain;
 }
 
-function initMicrophone(fnCtx) {
+function initMicrophone(fnCtx, fnAnalyser) {
   navigator.mediaDevices.getUserMedia({ audio: true })
     .then((sound) => {
       // debugger;
       mediaStream = sound;
       cbStream = fnCtx.createMediaStreamSource(sound);
       let gain = initGain(fnCtx);
-      gain.connect(analyser);
+      gain.connect(fnAnalyser);
       cbStream.connect(gain);
       // cbStream.connect(analyser);
       playing = true;
@@ -96,14 +104,16 @@ function startCapture(e) {
   reinit(); //reset the screen before modifying the screen
   // console.log(e);
   analyser?.getByteFrequencyData(dataArray);
-  if (dataArray?.length > 0) drawToDOM(dataArray);
+  transferToPeakMeter(dataArray, peakArray, e);
+  if (dataArray?.length > 0) drawToDOM(dataArray, peakArray);
   requestAnimationFrame(startCapture);
 }
 
-function drawToDOM(fnDataArray) {
+function drawToDOM(fnDataArray, fnPeakArray) {
   for (let i = 0; i < fnDataArray.length; i++) {
     let h = parseInt(map(fnDataArray[i], 0, 255, 0, height - 1));
-    let opacity = map(fnDataArray[i], 0, 255, 0, 1);
+    // let opacity = map(fnDataArray[i], 0, 255, 0, 1);
+    let opacity = getTrueOpacityValue(fnDataArray[i]);
 
     for (let k = 0; k < h + 1; k++) {
       let fg = getXY(i, k);
@@ -119,10 +129,21 @@ function drawToDOM(fnDataArray) {
         fg.className = "black";
       }
 
-      if (k == h && k != 0) {
+      if (k == h && k != 0 && fg.className == "black") {
         fg.style.opacity = opacity;
       }
     }
+  }
+
+  for (let i = 0; i < fnPeakArray?.length; i++) {
+    let h = parseInt(map(fnPeakArray[i].value, 0, 255, 0, height - 1));
+    let elem = getXY(i, h);
+    // if (h > height - clipLevel) {
+      // elem.className = "clip";
+      // debugger;
+    // } else {
+      elem.className = "peak";
+    // }
   }
 }
 
@@ -170,4 +191,40 @@ function changeGain(elem) {
 
 function showCSSGrid() {
   document.querySelectorAll("*").forEach(function (a) { a.style.outline = "1px solid #" + (~~(Math.random() * (1 << 24))).toString(16) });
+}
+
+function initPeakMeter() {
+  // peakArray = new Uint8Array(dataArray.length);
+  peakArray = new Array(dataArray.length).fill(new Peak(0, 0));
+}
+
+function transferToPeakMeter(fnDataArray, fnPeakArray, ts) {
+  for (let i = 0; i < fnDataArray?.length; i++) {
+    if (fnDataArray[i] > fnPeakArray[i].value) {
+      fnPeakArray[i] = new Peak(fnDataArray[i], ts);
+    }
+    fnPeakArray[i].update(ts);
+  }
+}
+
+class Peak {
+  constructor(val, ts) {
+    this.peak(val, ts);
+  }
+
+  peak(v, i) {
+    this.value = v;
+    this.t = i;
+    // setTimeout({}, peakHoldTime);
+  }
+
+  update(ts) {
+    if (ts > this.t + peakHoldTime) {
+      this.value -= 5;
+    }
+  }
+}
+
+function getTrueOpacityValue(value) {
+  return map(value % height, 0, height, 0, 1);
 }
