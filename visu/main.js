@@ -38,9 +38,11 @@ function getXY(x, y) {
 function initAudioContext() {
   // if (!"AudioContext" in window || !AudioContext) {alert("AudioContext not supported"); throw new Error("Failed to catch AudioContext - Not supported")};
 
-  let acAudioContext = window.AudioContext || window.webkitAudioContext;
+  // let acAudioContext = window.AudioContext || window.webkitAudioContext;
 
-  audioCtx = new acAudioContext({
+  if (!"AudioContext" in window && !AudioContext) AudioContext = window.webkitAudioContext;
+
+  audioCtx = new AudioContext({
     latencyHint: 'interactive',
     sampleRate: 44100,
   });
