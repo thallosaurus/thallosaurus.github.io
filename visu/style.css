@@ -1,10 +1,12 @@
 :root {
-  --visu-height: 10px;
-  --visu-width: 10px;
+  --visu-height: 20px;
+  --visu-width: 20px;
 }
 
 #content {
   height: auto;
+  margin: auto;
+  width: min-content;
 }
 
 div span {
