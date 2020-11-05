@@ -8,13 +8,21 @@
  * file: Gibt an, welche Externe Datei statt des Mikrofons genutzt werden soll
  */
 
-let content, audioCtx, analyser, gain, dataArray, peakArray, htmlElements, cbStream, mediaStream, playing, fpsCounter;
+//let content, audioCtx, analyser, gain, dataArray, peakArray, htmlElements, cbStream, mediaStream, playing, fpsCounter;
+
+let main;
+let cancelRedraw = false;
+let showIndividualFrequencyVolume = true;
+let showTimeDomainData = false;
+let showPeakMeter = true;
+let showLevels = true;
 
 const height = parseInt(getParam("h") ?? 15);
 const width = fft(getParam("bc") ?? 16);
 const clipLevel = parseInt(getParam("cl") ?? 5);
 const talkback = parseInt(getParam("tb") ?? 0) == 1;
 const useInfile = getParam("file") != null && getParam("file") != "";
+const useDOM = (getParam("useDOM") == 1) ?? false;
 const DEFAULT_GLYPH = "";
 const peakHoldTime = 1000;
 
@@ -33,58 +41,18 @@ function fft(input) {
 }
 
 window.onload = () => {
-  if (getParam("dbg")) {
-    createDebugAdapter(getParam("dbg"));
-  }
+  // if (!useObj) {
+  //   if (getParam("dbg")) {
+  //     createDebugAdapter(getParam("dbg"));
+  //   }
 
-  content = document.querySelector("#content");
-  countFPS();
-  createBackground(width, height, content);
-  startCapture(0);
-}
-
-/**
- * Initialisiert den AudioContext und das Mikrofon
- */
-function initMicAndContext() {
-  initAudioContext();
-  if (useInfile) {
-    initAudioFile(getParam("file"), audioCtx, analyser);
-  } else initMicrophone(audioCtx, analyser);
-}
-
-/**
- * Erstellt die "Tabelle"
- * @param {number} fnWidth Die Breite der Tabelle
- * @param {number} fnHeight Die Höhe der Tabelle
- * @param {HTMLElement} fnWindow Der Platzhalter im DOMContentTree
- */
-function createBackground(fnWidth, fnHeight, fnWindow = null) {
-  if (!fnWindow) throw new Error("You didn't specify an element");
-
-  htmlElements = {};
-
-  for (let lY = fnHeight - 1; lY > -1; lY--) {
-    let row = document.createElement("div");
-    row.dataset.rowNumber = lY;
-    let wQty = parseInt(getComputedStyle(content).getPropertyValue("--visu-width"));
-    row.style.width = (width * wQty) + "px";
-
-    htmlElements[lY] = {};
-
-    for (let lX = 0; lX < fnWidth; lX++) {
-      let col = document.createElement("span");
-      col.innerText = DEFAULT_GLYPH;
-      col.dataset.colNumber = lX;
-      col.dataset.modified = 0;
-      // debugger;
-      htmlElements[lY][lX] = col;
-      // row.append(htmlElements[arrayPointer][lX]);
-      row.append(col);
-    }
-
-    fnWindow.append(row);
-  }
+  //   content = document.querySelector("#content");
+  //   countFPS();
+  //   createBackground(width, height, content);
+  //   startCapture(0);
+  // } else {
+  main = new Main("#content");
+  // }
 }
 
 /**
@@ -92,7 +60,7 @@ function createBackground(fnWidth, fnHeight, fnWindow = null) {
  * @param {number} x X-Koordinate
  * @param {number} y Y-Koordinate
  */
-function getXY(x, y) {
+/* function getXY(x, y) {
   // let cell = content.querySelector(`div[data-row-number='${y}'] span[data-col-number='${x}']`);
   try {
     let cell = htmlElements[y][x];
@@ -100,97 +68,7 @@ function getXY(x, y) {
   } catch (e) {
     debugger;
   }
-}
-
-/**
- * Initialisiert den AudioContext. Muss vor Initialisierung der Eingabequellen aufgerufen werden
- */
-function initAudioContext() {
-  let AudioContext_ = null;
-  if (!("AudioContext" in window) /*&& !AudioContext*/) AudioContext_ = window.webkitAudioContext;
-
-  if (!audioCtx) {
-    audioCtx = new (AudioContext_ ?? AudioContext)({
-      latencyHint: 'interactive'
-    });
-  }
-  disconnect(); //Disconnect old inputs, if there are any
-
-  analyser = audioCtx.createAnalyser();
-  analyser.fftSize = width * 2;
-  dataArray = new Uint8Array(analyser.frequencyBinCount);
-  initPeakMeter();
-}
-
-/**
- * Initialisert das GainNode
- * @param {AudioContext} fnCtx Der bestehende AudioContext
- */
-function initGain(fnCtx) {
-  gain = fnCtx.createGain();
-  return gain;
-}
-
-/**
- * Initialisert das Mikrofon und verbindet es an den bestehenden AudioContext
- * @param {AudioContext} fnCtx Der bestehende AudioContext
- * @param {AnalyserNode} fnAnalyser Der AudioAnalyser welcher das Signal prozessiert
- */
-function initMicrophone(fnCtx, fnAnalyser) {
-  navigator.mediaDevices.getUserMedia({ audio: true })
-    .then((sound) => {
-      // debugger;
-      mediaStream = sound;
-      cbStream = fnCtx.createMediaStreamSource(sound);
-      gain = initGain(fnCtx);
-      gain.connect(fnAnalyser);
-      cbStream.connect(gain);
-      if (talkback) {
-        alert("Bitte jetzt leiser drehen");
-        cbStream.connect(audioCtx.destination);
-      }
-      playing = true;
-    }).catch((e) => {
-      console.log(e);
-      alert(e);
-    });
-}
-
-function initAudioFile(fileName, fnCtx, fnAnalyser) {
-  fetch("songs/" + fileName + ".mp3").then((res) => {
-    if (res.ok) {
-      return res.arrayBuffer();
-    }
-  }).then(res => {
-
-    fnCtx.decodeAudioData(res, (data) => {
-      const source = fnCtx.createBufferSource();
-      source.buffer = data;
-
-      gain = initGain(fnCtx);
-      gain.connect(fnAnalyser);
-      source.connect(gain);
-
-      fnAnalyser.connect(fnCtx.destination);
-
-      source.start();
-    });
-  })
-}
-
-/**
- * Loop Funktion, welche den Bildschirm füllt
- * @param {number} e 
- */
-function startCapture(e) {
-  reinit(); //reset the screen before modifying the screen
-  analyser?.getByteFrequencyData(dataArray);
-  transferToPeakMeter(dataArray, peakArray, e);
-  if (dataArray?.length > 0) drawToDOM(dataArray, peakArray);
-  setTimeout(() => {
-    requestAnimationFrame(startCapture);
-  }, 10);
-}
+} */
 
 /**
  * Initialisiert den FPS Counter
@@ -201,80 +79,8 @@ function countFPS() {
   requestAnimationFrame(countFPS);
 }
 
-/**
- * Malt die Kästchen im DOM an
- * @param {*} fnDataArray 
- * @param {*} fnPeakArray 
- */
-function drawToDOM(fnDataArray, fnPeakArray) {
-  for (let i = 0; i < fnDataArray.length; i++) {
-    let h = parseInt(map(fnDataArray[i], 0, 255, 0, height - 1));
-    let opacity = getTrueOpacityValue(fnDataArray[i]);
-
-    for (let k = 0; k < h + 1; k++) {
-      let fg = getXY(i, k);
-      if (!fg) {
-        debugger;
-        throw Error("Not a HTML element, h: " + h + " w: " + i);
-      }
-
-      if (h > height - clipLevel && k > height - clipLevel) {
-        fg.className = "clipping";
-        fg.dataset.modified = 1;
-      } else {
-        fg.className = "meter";
-        let color = getRedishTone(fnDataArray[i]);
-        fg.style.backgroundColor = color;
-        fg.dataset.modified = 1;
-      }
-
-      if (k == h && k != 0 && fg.className == "meter") {
-        fg.className = "last";
-        fg.style.opacity = opacity;
-      }
-    }
-  }
-
-  for (let i = 0; i < fnPeakArray?.length; i++) {
-    let h = parseInt(map(fnPeakArray[i].value, 0, 255, 0, height - 1));
-    let elem = getXY(i, h);
-    elem.className = "peak";
-    elem.dataset.modified = 1;
-  }
-}
-
-/**
- * Mapping Hilfsfunktion
- */
 function map(value, low1, high1, low2, high2) {
   return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
-}
-
-/**
- * Setzt die Tabellarische Anzeige zurück
- */
-function reinit() {
-  /*content.querySelectorAll('span[data-modified="1"]').forEach((f) => {
-    f.className = "";
-    f.style.opacity = 1;
-    f.style.backgroundColor = "";
-    f.dataset.modified = 0;
-  });*/
-  for (let y in htmlElements) {
-    for (let x in htmlElements[y]) {
-      // console.log(x);
-      htmlElements[y][x].className = "";
-      htmlElements[y][x].style.opacity = 1;
-      htmlElements[y][x].style.backgroundColor = "";
-      htmlElements[y][x].dataset.modified = 0;
-    }
-  }
-}
-
-function disconnect() {
-  if (playing) gain.disconnect(analyser);
-  mediaStream?.getTracks()[0].stop();
-  playing = false;
 }
 
 function getParam(param) {
@@ -282,40 +88,14 @@ function getParam(param) {
   return urlParams.get(param);
 }
 
-function createDebugAdapter(id) {
-  let dbg = document.createElement("script");
-  if (id == 1) {
-    id = prompt("Debug-Token:");
-  }
-
-  if (id !== null) {
-    dbg.dataset.consolejsChannel = id;
-    dbg.src = "https://remotejs.com/agent/agent.js";
-    document.head.append(dbg);
-  }
-}
-
 function changeGain(elem) {
-  gain.gain.value = elem.value;
+  //gain.gain.value = 100 - (100 / elem.value);/* / 100 * 2;*/
+  main.changeGain(elem.value);
 }
 
 function showCSSGrid() {
   document.querySelectorAll("*").forEach(function (a) { a.style.outline = "1px solid #" + (~~(Math.random() * (1 << 24))).toString(16) });
 }
-
-function initPeakMeter() {
-  peakArray = new Array(dataArray.length).fill(new Peak(0, 0));
-}
-
-function transferToPeakMeter(fnDataArray, fnPeakArray, ts) {
-  for (let i = 0; i < fnDataArray?.length; i++) {
-    if (fnDataArray[i] > fnPeakArray[i].value) {
-      fnPeakArray[i] = new Peak(fnDataArray[i], ts);
-    }
-    fnPeakArray[i].update(ts);
-  }
-}
-
 class Peak {
   constructor(val, ts) {
     this.peak(val, ts);
@@ -337,8 +117,16 @@ function getTrueOpacityValue(value) {
   return map(value % height, 0, height, 0, 1);
 }
 
-function getRedishTone(value) {
-  return "#" + ((value << 16) | (0 << 8) | 255 - value).toString(16);
+function getRedishToneHex(value) {
+  if (showIndividualFrequencyVolume) {
+    return "#" + ((value << 16) | (0 << 8) | 255 - value).toString(16);
+  } else return "#0000ff";
+}
+
+function getRedishToneRGBA(value) {
+  if (showIndividualFrequencyVolume) {
+    return "rgba(" + value + ",0," + (255 - value) + "," + getTrueOpacityValue(value) + ")";
+  } else return "rgba(0,0,255," + getTrueOpacityValue(value) + ")";
 }
 
 function sleep(time) {
@@ -364,3 +152,379 @@ fps = (function () {
     return fps;
   };
 }());
+
+class Main {
+  constructor(qSel) {
+    if (getParam("dbg")) {
+      this.createDebugAdapter(getParam("dbg"));
+    }
+
+    // debugger;
+
+    this.output = useDOM ? new DOMOutput() : new CanvasOutput();
+    this.playing = false;
+
+    this.content = document.querySelector(qSel);
+    this.dataArray = this.initDataArray(width);
+    this.peakArray = this.initPeakMeter();
+    this.timeDomainData = new Uint8Array(width).fill(128);
+    // countFPS();
+    this.output.init(width, height, this.content);
+    this.capture(0);
+  }
+
+  set playing(v) {
+    this.playState = v;
+    this.output.notifyPlayState(v);
+  }
+
+  initDataArray(fnW) {
+    return new Uint8Array(fnW).fill(0);
+  }
+
+  initPeakMeter() {
+    return new Array(this.dataArray.length).fill(new Peak(0, 0));
+  }
+
+  initAudioContext() {
+    let AudioContext_ = null;
+    if (!("AudioContext" in window) /*&& !AudioContext*/) AudioContext_ = window.webkitAudioContext;
+
+    if (!this.audioCtx) {
+      this.audioCtx = new (AudioContext_ ?? AudioContext)({
+        latencyHint: 'interactive'
+      });
+    }
+    this.disconnect(); //Disconnect old inputs, if there are any
+
+    this.analyser = this.audioCtx.createAnalyser();
+    this.analyser.fftSize = width * 2;
+    // this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+  }
+
+  initMicAndContext() {
+    this.initAudioContext();
+    if (useInfile) {
+      this.initAudioFile(getParam("file"), this.audioCtx, this.analyser);
+    } else this.initMicrophone(this.audioCtx, this.analyser);
+  }
+
+  initAudioFile(fileName, fnCtx, fnAnalyser) {
+    fetch("songs/" + fileName + ".mp3").then((res) => {
+      if (res.ok) {
+        return res.arrayBuffer();
+      }
+    }).then(res => {
+
+      fnCtx.decodeAudioData(res, (data) => {
+        const source = fnCtx.createBufferSource();
+        source.buffer = data;
+
+        let lgain = this.initGain(fnCtx);
+        lgain.connect(fnAnalyser);
+        source.connect(gain);
+
+        fnAnalyser.connect(fnCtx.destination);
+
+        source.start();
+      });
+    });
+  }
+
+  initMicrophone(fnCtx, fnAnalyser) {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then((sound) => {
+        // debugger;
+        this.mediaStream = sound;
+        this.cbStream = fnCtx.createMediaStreamSource(sound);
+        let gain = this.initGain(fnCtx);
+        gain.connect(fnAnalyser);
+        this.cbStream.connect(gain);
+        if (talkback) {
+          alert("Bitte jetzt leiser drehen");
+          this.cbStream.connect(this.audioCtx.destination);
+        }
+        this.playing = true;
+      }).catch((e) => {
+        console.log(e);
+        alert(e);
+      });
+  }
+
+  initGain(fnCtx) {
+    this.gain = fnCtx.createGain();
+    return this.gain;
+  }
+
+  changeGain(val) {
+    console.log(val);
+    this.gain.gain.value = map(val, 0, 100, 0, 2);
+    //(100 / val * 2) ;
+  }
+
+  transferToPeakMeter(fnDataArray, fnPeakArray, ts) {
+    for (let i = 0; i < fnDataArray?.length; i++) {
+      if (fnDataArray[i] > fnPeakArray[i].value) {
+        fnPeakArray[i] = new Peak(fnDataArray[i], ts);
+      }
+      fnPeakArray[i].update(ts);
+    }
+  }
+
+  capture(e) {
+    // console.log(e);
+    if (!cancelRedraw) this.output.reinit(); //reset the screen before modifying the screen
+
+    this.analyser?.getByteFrequencyData(this.dataArray);
+    this.transferToPeakMeter(this.dataArray, this.peakArray, e);
+    this.analyser?.getByteTimeDomainData(this.timeDomainData);
+    this.output.draw(this.dataArray, this.peakArray, this.timeDomainData);
+
+    setTimeout(() => {
+      requestAnimationFrame((t) => { this.capture(t) });
+    }, 25);
+  }
+
+  createDebugAdapter(fnToken) {
+    let dbg = document.createElement("script");
+    if (fnToken == 1) {
+      fnToken = prompt("Debug-Token:");
+    }
+
+    if (fnToken !== null) {
+      dbg.dataset.consolejsChannel = fnToken;
+      dbg.src = "https://remotejs.com/agent/agent.js";
+      document.head.append(dbg);
+    }
+  }
+
+  disconnect() {
+    if (this.playing) this.gain.disconnect(this.analyser);
+    this.mediaStream?.getTracks()[0].stop();
+    this.playing = false;
+  }
+}
+
+/* Template Class for Output Interface */
+class OutputInterface {
+  constructor() {
+    this.wQty = parseInt(getComputedStyle(document.body).getPropertyValue("--visu-width"));
+    this.hQty = parseInt(getComputedStyle(document.body).getPropertyValue("--visu-height"));
+  }
+
+  init(fnWidth, fnHeight, fnWindow = null) {
+
+  }
+
+  reinit() {
+
+  }
+
+  draw(fnDataArray, fnPeakArray, fnTimeDomainData) {
+
+  }
+
+  drawTimeDomainData(fnTimeDomainData) {
+
+  }
+
+  notifyPlayState(s) {
+    this.playing = s;
+  }
+}
+
+class CanvasOutput extends OutputInterface {
+  constructor() {
+    super();
+    this.modifiedBuffer = new Array();
+  }
+
+  init(fnWidth, fnHeight, fnWindow = null) {
+    if (!fnWindow) throw new Error("You didn't specify an element");
+    this.canvas = document.createElement("canvas");
+
+    this.width = fnWidth;
+    this.height = fnHeight;
+
+    this.canvas.width = fnWidth * this.wQty;
+    this.canvas.height = fnHeight * (this.hQty) + this.hQty;
+    this.ctx = this.canvas.getContext("2d");
+    fnWindow.append(this.canvas);
+  }
+
+  reinit() {
+    this.ctx.fillStyle = "white";
+    this.ctx.fillRect(0, 0, this.width * this.wQty, this.height * this.hQty + this.hQty);
+  }
+
+  draw(fnDataArray, fnPeakArray, fnTimeDomainData) {
+    if (showLevels) this.drawLevels(fnDataArray);
+    if (showPeakMeter) this.drawPeakMeter(fnPeakArray);
+    if (showTimeDomainData) this.drawTimeDomainData(fnTimeDomainData);
+
+    if (!this.playing) {
+      // this.drawInfo();
+    }
+  }
+
+  drawInfo() {
+    this.ctx.textAlign = "center";
+    this.ctx.fillStyle = "black";
+    this.ctx.font = "50px Arial";
+    this.ctx.fillText("Click here to enable Audio", this.canvas.width / 2, this.canvas.height / 2);
+  }
+
+  drawLevels(fnDataArray) {
+    for (let i = 0; i < fnDataArray.length; i++) {
+      let meterHeight = parseInt(map(fnDataArray[i], 0, 255, 0, this.height));
+
+      for (let j = 0; j < meterHeight; j++) {
+
+        let color;
+
+        if (meterHeight > height - clipLevel && j > height - clipLevel) {
+          color = "yellow";
+        } else {
+          color = getRedishToneHex(fnDataArray[i]);
+        }
+        if (j == meterHeight - 1) {
+          color = getRedishToneRGBA(fnDataArray[i]);
+        }
+        this.drawXY(i, j, color);
+      }
+    }
+  }
+
+  drawPeakMeter(fnPeakArray) {
+    for (let i = 0; i < fnPeakArray.length; i++) {
+      let peakMeter = parseInt(map(fnPeakArray[i].value, 0, 255, 0, this.height));
+      // console.log(fnPeakArray[i]);
+      this.drawXY(i, peakMeter, "green");
+    }
+
+  }
+
+  drawTimeDomainData(fnTimeDomainData) {
+    for (let i = 0; i < fnTimeDomainData.length; i++) {
+      let meterHeight = parseInt(map(fnTimeDomainData[i], 0, 255, 0, this.height));
+      this.drawXY(i, meterHeight, "purple");
+    }
+  }
+
+  drawXY(x, y, color) {
+    this.ctx.fillStyle = color;
+    this.ctx.fillRect(this.wQty * x, (this.canvas.height - this.hQty) - this.hQty * y, this.wQty, this.hQty);
+  }
+
+  drawScale() {
+    for (let i = 0; i < height; i++) {
+      //TODO
+    }
+  }
+}
+
+class DOMOutput extends OutputInterface {
+  constructor() {
+    super();
+  }
+
+  init(fnWidth, fnHeight, fnWindow = null) {
+    if (!fnWindow) throw new Error("You didn't specify an element");
+
+    this.htmlElements = {};
+
+    for (let lY = fnHeight - 1; lY > -1; lY--) {
+      let row = document.createElement("div");
+      row.dataset.rowNumber = lY;
+      // let wQty = parseInt(getComputedStyle(content).getPropertyValue("--visu-width"));
+      row.style.width = (width * this.wQty) + "px";
+
+      this.htmlElements[lY] = {};
+
+      for (let lX = 0; lX < fnWidth; lX++) {
+        let col = document.createElement("span");
+        col.innerText = DEFAULT_GLYPH;
+        col.dataset.colNumber = lX;
+        col.dataset.modified = 0;
+        // debugger;
+        this.htmlElements[lY][lX] = col;
+        // row.append(htmlElements[arrayPointer][lX]);
+        row.append(col);
+      }
+
+      fnWindow.append(row);
+    }
+  }
+
+  reinit() {
+    for (let y in this.htmlElements) {
+      for (let x in this.htmlElements[y]) {
+        // console.log(x);
+        this.htmlElements[y][x].className = "";
+        this.htmlElements[y][x].style.opacity = 1;
+        this.htmlElements[y][x].style.backgroundColor = "";
+        this.htmlElements[y][x].dataset.modified = 0;
+      }
+    }
+  }
+
+  draw(fnDataArray, fnPeakArray) {
+    for (let i = 0; i < fnDataArray.length; i++) {
+      let h = parseInt(map(fnDataArray[i], 0, 255, 0, height - 1));
+      let opacity = getTrueOpacityValue(fnDataArray[i]);
+
+      for (let k = 0; k < h + 1; k++) {
+        let fg = this.getXY(i, k);
+        if (!fg) {
+          debugger;
+          throw Error("Not a HTML element, h: " + h + " w: " + i);
+        }
+
+        if (h > height - clipLevel && k > height - clipLevel) {
+          fg.className = "clipping";
+          fg.dataset.modified = 1;
+        } else {
+          fg.className = "meter";
+          let color = getRedishToneHex(fnDataArray[i]);
+          fg.style.backgroundColor = color;
+          fg.dataset.modified = 1;
+        }
+
+        if (k == h && k != 0 && fg.className == "meter") {
+          fg.className = "last";
+          fg.style.opacity = opacity;
+        }
+      }
+    }
+
+    for (let i = 0; i < fnPeakArray?.length; i++) {
+      let h = parseInt(map(fnPeakArray[i].value, 0, 255, 0, height - 1));
+      let elem = this.getXY(i, h);
+      elem.className = "peak";
+      elem.dataset.modified = 1;
+    }
+  }
+
+  getXY(x, y) {
+    // let cell = content.querySelector(`div[data-row-number='${y}'] span[data-col-number='${x}']`);
+    try {
+      let cell = this.htmlElements[y][x];
+      return cell;
+    } catch (e) {
+      debugger;
+    }
+  }
+}
+
+function initMicAndContext() {
+  main.initMicAndContext();
+}
+
+function disconnect() {
+  main.disconnect();
+}
+
+function dbgDraw(x, y) {
+  // main.output.ctx.fillStyle = "black";
+  main.output.drawXY(x, y, "black");
+}

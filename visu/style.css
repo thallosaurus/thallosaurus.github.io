@@ -5,6 +5,8 @@
 
 #content {
   height: auto;
+  margin: auto;
+  width: min-content;
 }
 
 div span {
