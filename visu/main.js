@@ -273,7 +273,7 @@ function createDebugAdapter(id) {
 }
 
 function changeGain(elem) {
-  //gain.gain.value = 100 - (100 / elem.value);/* / 100 * 2;*/
+  gain.gain.value = elem.value;
 }
 
 function showCSSGrid() {
