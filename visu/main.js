@@ -7,17 +7,21 @@
  * dbg: Verbindet zu remotejs.com mit dem angegeben Token (1 für Popup um ID einzugeben)
  */
 
-let content, audioCtx, analyser, gain, dataArray, peakArray, htmlElements, cbStream, mediaStream, playing, fpsCounter;
+//let content, audioCtx, analyser, gain, dataArray, peakArray, htmlElements, cbStream, mediaStream, playing, fpsCounter;
 
 let main;
 let cancelRedraw = false;
+let showIndividualFrequencyVolume = true;
+let showTimeDomainData = false;
+let showPeakMeter = true;
+let showLevels = true;
 
 const height = parseInt(getParam("h") ?? 15);
 const width = fft(getParam("bc") ?? 16);
 const clipLevel = parseInt(getParam("cl") ?? 5);
 const talkback = parseInt(getParam("tb") ?? 0) == 1;
 const useInfile = getParam("file") != null && getParam("file") != "";
-const useObj = (getParam("obj") == 1) ?? false;
+const useDOM = (getParam("useDOM") == 1) ?? false;
 const DEFAULT_GLYPH = "";
 const peakHoldTime = 1000;
 
@@ -79,6 +83,7 @@ function getParam(param) {
 
 function changeGain(elem) {
   //gain.gain.value = 100 - (100 / elem.value);/* / 100 * 2;*/
+  main.changeGain(elem.value);
 }
 
 function showCSSGrid() {
@@ -106,11 +111,15 @@ function getTrueOpacityValue(value) {
 }
 
 function getRedishToneHex(value) {
-  return "#" + ((value << 16) | (0 << 8) | 255 - value).toString(16);
+  if (showIndividualFrequencyVolume) {
+    return "#" + ((value << 16) | (0 << 8) | 255 - value).toString(16);
+  } else return "#0000ff";
 }
 
 function getRedishToneRGBA(value) {
-  return "rgba(" + value + ",0," + (255 - value) + "," + getTrueOpacityValue(value) + ")";
+  if (showIndividualFrequencyVolume) {
+    return "rgba(" + value + ",0," + (255 - value) + "," + getTrueOpacityValue(value) + ")";
+  } else return "rgba(0,0,255," + getTrueOpacityValue(value) + ")";
 }
 
 function sleep(time) {
@@ -143,38 +152,54 @@ class Main {
       this.createDebugAdapter(getParam("dbg"));
     }
 
-    debugger;
+    // debugger;
 
-    this.output = useObj ? new CanvasOutput() : new DOMOutput();
+    this.output = useDOM ? new DOMOutput() : new CanvasOutput();
+    this.playing = false;
 
-    content = document.querySelector(qSel);
+    this.content = document.querySelector(qSel);
+    this.dataArray = this.initDataArray(width);
+    this.peakArray = this.initPeakMeter();
+    this.timeDomainData = new Uint8Array(width).fill(128);
     // countFPS();
-    this.output.init(width, height, content);
+    this.output.init(width, height, this.content);
     this.capture(0);
+  }
+
+  set playing(v) {
+    this.playState = v;
+    this.output.notifyPlayState(v);
+  }
+
+  initDataArray(fnW) {
+    return new Uint8Array(fnW).fill(0);
+  }
+
+  initPeakMeter() {
+    return new Array(this.dataArray.length).fill(new Peak(0, 0));
   }
 
   initAudioContext() {
     let AudioContext_ = null;
     if (!("AudioContext" in window) /*&& !AudioContext*/) AudioContext_ = window.webkitAudioContext;
 
-    if (!audioCtx) {
-      audioCtx = new (AudioContext_ ?? AudioContext)({
+    if (!this.audioCtx) {
+      this.audioCtx = new (AudioContext_ ?? AudioContext)({
         latencyHint: 'interactive'
       });
     }
     this.disconnect(); //Disconnect old inputs, if there are any
 
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = width * 2;
-    dataArray = new Uint8Array(analyser.frequencyBinCount);
-    this.initPeakMeter();
+    this.analyser = this.audioCtx.createAnalyser();
+    this.analyser.fftSize = width * 2;
+    // this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
   }
 
   initMicAndContext() {
     this.initAudioContext();
     if (useInfile) {
-      this.initAudioFile(getParam("file"), audioCtx, analyser);
-    } else this.initMicrophone(audioCtx, analyser);
+      this.initAudioFile(getParam("file"), this.audioCtx, this.analyser);
+    } else this.initMicrophone(this.audioCtx, this.analyser);
   }
 
   initAudioFile(fileName, fnCtx, fnAnalyser) {
@@ -188,8 +213,8 @@ class Main {
         const source = fnCtx.createBufferSource();
         source.buffer = data;
 
-        gain = this.initGain(fnCtx);
-        gain.connect(fnAnalyser);
+        let lgain = this.initGain(fnCtx);
+        lgain.connect(fnAnalyser);
         source.connect(gain);
 
         fnAnalyser.connect(fnCtx.destination);
@@ -203,16 +228,16 @@ class Main {
     navigator.mediaDevices.getUserMedia({ audio: true })
       .then((sound) => {
         // debugger;
-        mediaStream = sound;
-        cbStream = fnCtx.createMediaStreamSource(sound);
-        gain = this.initGain(fnCtx);
+        this.mediaStream = sound;
+        this.cbStream = fnCtx.createMediaStreamSource(sound);
+        let gain = this.initGain(fnCtx);
         gain.connect(fnAnalyser);
-        cbStream.connect(gain);
+        this.cbStream.connect(gain);
         if (talkback) {
           alert("Bitte jetzt leiser drehen");
-          cbStream.connect(audioCtx.destination);
+          this.cbStream.connect(this.audioCtx.destination);
         }
-        playing = true;
+        this.playing = true;
       }).catch((e) => {
         console.log(e);
         alert(e);
@@ -220,12 +245,14 @@ class Main {
   }
 
   initGain(fnCtx) {
-    gain = fnCtx.createGain();
-    return gain;
+    this.gain = fnCtx.createGain();
+    return this.gain;
   }
 
-  initPeakMeter() {
-    peakArray = new Array(dataArray.length).fill(new Peak(0, 0));
+  changeGain(val) {
+    console.log(val);
+    this.gain.gain.value = map(val, 0, 100, 0, 2);
+    //(100 / val * 2) ;
   }
 
   transferToPeakMeter(fnDataArray, fnPeakArray, ts) {
@@ -239,10 +266,13 @@ class Main {
 
   capture(e) {
     // console.log(e);
-    this.output.reinit(); //reset the screen before modifying the screen
-    analyser?.getByteFrequencyData(dataArray);
-    this.transferToPeakMeter(dataArray, peakArray, e);
-    if (dataArray?.length > 0) /*this.drawToDOM(dataArray, peakArray);*/ this.output.draw(dataArray, peakArray);
+    if (!cancelRedraw) this.output.reinit(); //reset the screen before modifying the screen
+
+    this.analyser?.getByteFrequencyData(this.dataArray);
+    this.transferToPeakMeter(this.dataArray, this.peakArray, e);
+    this.analyser?.getByteTimeDomainData(this.timeDomainData);
+    this.output.draw(this.dataArray, this.peakArray, this.timeDomainData);
+
     setTimeout(() => {
       requestAnimationFrame((t) => { this.capture(t) });
     }, 25);
@@ -262,9 +292,9 @@ class Main {
   }
 
   disconnect() {
-    if (playing) gain.disconnect(analyser);
-    mediaStream?.getTracks()[0].stop();
-    playing = false;
+    if (this.playing) this.gain.disconnect(this.analyser);
+    this.mediaStream?.getTracks()[0].stop();
+    this.playing = false;
   }
 }
 
@@ -283,18 +313,23 @@ class OutputInterface {
 
   }
 
-  draw(fnDataArray, fnPeakArray) {
+  draw(fnDataArray, fnPeakArray, fnTimeDomainData) {
 
   }
 
-  getXY(x, y) {
+  drawTimeDomainData(fnTimeDomainData) {
 
+  }
+
+  notifyPlayState(s) {
+    this.playing = s;
   }
 }
 
 class CanvasOutput extends OutputInterface {
   constructor() {
     super();
+    this.modifiedBuffer = new Array();
   }
 
   init(fnWidth, fnHeight, fnWindow = null) {
@@ -311,23 +346,30 @@ class CanvasOutput extends OutputInterface {
   }
 
   reinit() {
-    if (!cancelRedraw) {
-      this.ctx.fillStyle = "white";
-      this.ctx.fillRect(0, 0, this.width * this.wQty, this.height * this.hQty);
+    this.ctx.fillStyle = "white";
+    this.ctx.fillRect(0, 0, this.width * this.wQty, this.height * this.hQty + this.hQty);
+  }
+
+  draw(fnDataArray, fnPeakArray, fnTimeDomainData) {
+    if (showLevels) this.drawLevels(fnDataArray);
+    if (showPeakMeter) this.drawPeakMeter(fnPeakArray);
+    if (showTimeDomainData) this.drawTimeDomainData(fnTimeDomainData);
+
+    if (!this.playing) {
+      // this.drawInfo();
     }
   }
 
-  draw(fnDataArray, fnPeakArray) {
+  drawInfo() {
+    this.ctx.textAlign = "center";
+    this.ctx.fillStyle = "black";
+    this.ctx.font = "50px Arial";
+    this.ctx.fillText("Click here to enable Audio", this.canvas.width / 2, this.canvas.height / 2);
+  }
+
+  drawLevels(fnDataArray) {
     for (let i = 0; i < fnDataArray.length; i++) {
-
-      /*this.ctx.beginPath();
-      this.ctx.moveTo(i, 0);
-      this.ctx.lineTo(i, fnDataArray[i]);
-      this.ctx.stroke();*/
       let meterHeight = parseInt(map(fnDataArray[i], 0, 255, 0, this.height));
-      // console.log(meterHeight);
-
-      // if (h > height - clipLevel && k > height - clipLevel) {
 
       for (let j = 0; j < meterHeight; j++) {
 
@@ -343,21 +385,34 @@ class CanvasOutput extends OutputInterface {
         }
         this.drawXY(i, j, color);
       }
-
-      /* this.ctx.fillStyle = getRedishTone(fnDataArray[i]);
-      this.ctx.fillRect(this.wQty * i, 0, this.wQty, fnDataArray[i]);*/
     }
+  }
 
+  drawPeakMeter(fnPeakArray) {
     for (let i = 0; i < fnPeakArray.length; i++) {
       let peakMeter = parseInt(map(fnPeakArray[i].value, 0, 255, 0, this.height));
       // console.log(fnPeakArray[i]);
       this.drawXY(i, peakMeter, "green");
+    }
+
+  }
+
+  drawTimeDomainData(fnTimeDomainData) {
+    for (let i = 0; i < fnTimeDomainData.length; i++) {
+      let meterHeight = parseInt(map(fnTimeDomainData[i], 0, 255, 0, this.height));
+      this.drawXY(i, meterHeight, "purple");
     }
   }
 
   drawXY(x, y, color) {
     this.ctx.fillStyle = color;
     this.ctx.fillRect(this.wQty * x, (this.canvas.height - this.hQty) - this.hQty * y, this.wQty, this.hQty);
+  }
+
+  drawScale() {
+    for (let i = 0; i < height; i++) {
+      //TODO
+    }
   }
 }
 
@@ -369,7 +424,7 @@ class DOMOutput extends OutputInterface {
   init(fnWidth, fnHeight, fnWindow = null) {
     if (!fnWindow) throw new Error("You didn't specify an element");
 
-    htmlElements = {};
+    this.htmlElements = {};
 
     for (let lY = fnHeight - 1; lY > -1; lY--) {
       let row = document.createElement("div");
@@ -377,7 +432,7 @@ class DOMOutput extends OutputInterface {
       // let wQty = parseInt(getComputedStyle(content).getPropertyValue("--visu-width"));
       row.style.width = (width * this.wQty) + "px";
 
-      htmlElements[lY] = {};
+      this.htmlElements[lY] = {};
 
       for (let lX = 0; lX < fnWidth; lX++) {
         let col = document.createElement("span");
@@ -385,7 +440,7 @@ class DOMOutput extends OutputInterface {
         col.dataset.colNumber = lX;
         col.dataset.modified = 0;
         // debugger;
-        htmlElements[lY][lX] = col;
+        this.htmlElements[lY][lX] = col;
         // row.append(htmlElements[arrayPointer][lX]);
         row.append(col);
       }
@@ -395,13 +450,13 @@ class DOMOutput extends OutputInterface {
   }
 
   reinit() {
-    for (let y in htmlElements) {
-      for (let x in htmlElements[y]) {
+    for (let y in this.htmlElements) {
+      for (let x in this.htmlElements[y]) {
         // console.log(x);
-        htmlElements[y][x].className = "";
-        htmlElements[y][x].style.opacity = 1;
-        htmlElements[y][x].style.backgroundColor = "";
-        htmlElements[y][x].dataset.modified = 0;
+        this.htmlElements[y][x].className = "";
+        this.htmlElements[y][x].style.opacity = 1;
+        this.htmlElements[y][x].style.backgroundColor = "";
+        this.htmlElements[y][x].dataset.modified = 0;
       }
     }
   }
@@ -412,7 +467,7 @@ class DOMOutput extends OutputInterface {
       let opacity = getTrueOpacityValue(fnDataArray[i]);
 
       for (let k = 0; k < h + 1; k++) {
-        let fg = getXY(i, k);
+        let fg = this.getXY(i, k);
         if (!fg) {
           debugger;
           throw Error("Not a HTML element, h: " + h + " w: " + i);
@@ -435,21 +490,21 @@ class DOMOutput extends OutputInterface {
       }
     }
 
-    function getXY(x, y) {
-      // let cell = content.querySelector(`div[data-row-number='${y}'] span[data-col-number='${x}']`);
-      try {
-        let cell = htmlElements[y][x];
-        return cell;
-      } catch (e) {
-        debugger;
-      }
-    }
-
     for (let i = 0; i < fnPeakArray?.length; i++) {
       let h = parseInt(map(fnPeakArray[i].value, 0, 255, 0, height - 1));
-      let elem = getXY(i, h);
+      let elem = this.getXY(i, h);
       elem.className = "peak";
       elem.dataset.modified = 1;
+    }
+  }
+
+  getXY(x, y) {
+    // let cell = content.querySelector(`div[data-row-number='${y}'] span[data-col-number='${x}']`);
+    try {
+      let cell = this.htmlElements[y][x];
+      return cell;
+    } catch (e) {
+      debugger;
     }
   }
 }
