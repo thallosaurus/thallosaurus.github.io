@@ -16,7 +16,7 @@
   <button onclick="initMicAndContext()">Klicke hier um das Mikrofon zu aktivieren</button>
   <button onclick="disconnect()">Disconnect</button>
   <label for="gain">Gain:</label>
-  <input type="range" oninput="changeGain(this)" name="gain">
+  <input type="range" min="0" max="1.75" oninput="changeGain(this)" name="gain">
   <input type="text" id="fps" disabled><br>
 </body>
 </html>
