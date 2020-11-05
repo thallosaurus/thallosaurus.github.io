@@ -57,19 +57,27 @@ function initMicAndContext() {
 function createBackground(fnWidth, fnHeight, fnWindow = null) {
   if (!fnWindow) throw new Error("You didn't specify an element");
 
+  htmlElements = {};
+
   for (let lY = fnHeight - 1; lY > -1; lY--) {
     let row = document.createElement("div");
     row.dataset.rowNumber = lY;
     let wQty = parseInt(getComputedStyle(content).getPropertyValue("--visu-width"));
     row.style.width = (width * wQty) + "px";
 
+    htmlElements[lY] = {};
+
     for (let lX = 0; lX < fnWidth; lX++) {
       let col = document.createElement("span");
       col.innerText = DEFAULT_GLYPH;
       col.dataset.colNumber = lX;
       col.dataset.modified = 0;
+      // debugger;
+      htmlElements[lY][lX] = col;
+      // row.append(htmlElements[arrayPointer][lX]);
       row.append(col);
     }
+
     fnWindow.append(row);
   }
 }
@@ -80,8 +88,13 @@ function createBackground(fnWidth, fnHeight, fnWindow = null) {
  * @param {number} y Y-Koordinate
  */
 function getXY(x, y) {
-  let cell = content.querySelector(`div[data-row-number='${y}'] span[data-col-number='${x}']`);
-  return cell;
+  // let cell = content.querySelector(`div[data-row-number='${y}'] span[data-col-number='${x}']`);
+  try {
+    let cell = htmlElements[y][x];
+    return cell;
+  } catch (e) {
+    debugger;
+  }
 }
 
 /**
@@ -208,6 +221,7 @@ function drawToDOM(fnDataArray, fnPeakArray) {
       }
 
       if (k == h && k != 0 && fg.className == "meter") {
+        fg.className = "last";
         fg.style.opacity = opacity;
       }
     }
@@ -226,12 +240,21 @@ function map(value, low1, high1, low2, high2) {
 }
 
 function reinit() {
-  content.querySelectorAll('span[data-modified="1"]').forEach((f) => {
+  /*content.querySelectorAll('span[data-modified="1"]').forEach((f) => {
     f.className = "";
     f.style.opacity = 1;
     f.style.backgroundColor = "";
     f.dataset.modified = 0;
-  });
+  });*/
+  for (let y in htmlElements) {
+    for (let x in htmlElements[y]) {
+      // console.log(x);
+      htmlElements[y][x].className = "";
+      htmlElements[y][x].style.opacity = 1;
+      htmlElements[y][x].style.backgroundColor = "";
+      htmlElements[y][x].dataset.modified = 0;
+    }
+  }
 }
 
 function disconnect() {

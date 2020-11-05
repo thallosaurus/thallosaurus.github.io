@@ -1,6 +1,6 @@
 :root {
-  --visu-height: 25px;
-  --visu-width: 50px;
+  --visu-height: 10px;
+  --visu-width: 10px;
 }
 
 #content {
@@ -54,4 +54,7 @@ div:before {
 
 .peak {
   background-color: darkgreen;
+}
+
+.last {
 }
