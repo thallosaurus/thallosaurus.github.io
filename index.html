@@ -46,7 +46,8 @@
 
     <section id="player" class="fadein blackBg" style="opacity: 0">
         <div id="v"></div>
-        <div class="np"><marquee scrollamount="2">Now Playing:<span id="filename"> Pause</span></marquee></div>
+        <div id="nowplaying"><!--<marquee scrollamount="2">--><span id="filename">Paused</span><!--</marquee>--></div>
+        <div id="playPause" onclick="togglePlay()"><span id="ppIcon">&#x25BA;</span></div>
     </section>
 
     <footer class="blackBg">

@@ -162,6 +162,10 @@ class Main {
     this.output.notifyPlayState(v);
   }
 
+  get playing() {
+    return this.playState;
+  }
+
   initDataArray(fnW) {
     return new Uint8Array(fnW).fill(0);
   }
@@ -289,6 +293,7 @@ class Main {
       dbg.dataset.consolejsChannel = fnToken;
       dbg.src = "https://remotejs.com/agent/agent.js";
       document.head.append(dbg);
+      showCSSGrid();
     }
   }
 
@@ -354,15 +359,6 @@ class CanvasOutput extends OutputInterface {
   init(fnWidth, fnHeight, fnWindow = null) {
     if (!fnWindow) throw new Error("You didn't specify an element");
     this.canvas = document.createElement("canvas");
-
-    this.canvas.addEventListener("click", (e) => {
-      console.log(this);
-      if (!this.playing) {
-        playFile("Hope");
-      } else {
-        stopFile();
-      }
-    });
 
     this.width = fnWidth;
     this.height = fnHeight;

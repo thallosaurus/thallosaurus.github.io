@@ -78,11 +78,20 @@ function initVisualizer(elemid) {
 function playFile(name) {
     visu.playFile(name);
     document.querySelector("#filename").innerText = " " + name;
+    document.querySelector("#ppIcon").innerHTML = "||";
 }
 
 function stopFile() {
     visu.disconnect();
-    document.querySelector("#filename").innerText = " Paused";
+    document.querySelector("#filename").innerText = "Paused";
+    document.querySelector("#ppIcon").innerHTML = "&#x25BA;";
+}
+function togglePlay() {
+    if (!visu.playing) {
+        playFile("Hope");
+    } else {
+        stopFile();
+    }
 }
 
 window.onload = function () {
@@ -98,7 +107,7 @@ window.onload = function () {
             console.log(e);
         });
 
-        initVisualizer("#v");
+    initVisualizer("#v");
 
     this.insertContent(getHash());
 }
@@ -265,8 +274,7 @@ async function pullAdditionalData(rawText) {
 
     //console.log(rawText);
 
-    if (typeof rawText === "Exception")
-    {
+    if (typeof rawText === "Exception") {
         console.log("There was an exception");
     }
 
@@ -324,39 +332,38 @@ function toggleDocmode(elem) {
 }
 
 function getCacheContentAsJSON() {
-    return "\n```\n" + 
-    JSON.stringify(pageCache) + 
-    "\n```\n\n";
+    return "\n```\n" +
+        JSON.stringify(pageCache) +
+        "\n```\n\n";
 }
 
 //navbar
-function initObserver(sel = "nav.blackBg")
-{
+function initObserver(sel = "nav.blackBg") {
     const stickyElem = document.querySelector(sel);
     console.log(stickyElem);
 
-    const observer = new IntersectionObserver(([e]) => e.target.classList.toggle("isSticky", e.intersectionRatio < 1), {threshold: [1]});
+    const observer = new IntersectionObserver(([e]) => e.target.classList.toggle("isSticky", e.intersectionRatio < 1), { threshold: [1] });
 
-        observer.observe(stickyElem);
+    observer.observe(stickyElem);
 }
 
 //cookies (thxx https://www.w3schools.com/js/js_cookies.asp)
 function setCookie(cname, cvalue) {
     document.cookie = cname + "=" + cvalue + ";path=/";
-  }
+}
 
-  function getCookie(cname) {
+function getCookie(cname) {
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);
     var ca = decodedCookie.split(';');
-    for(var i = 0; i <ca.length; i++) {
-      var c = ca[i];
-      while (c.charAt(0) == ' ') {
-        c = c.substring(1);
-      }
-      if (c.indexOf(name) == 0) {
-        return c.substring(name.length, c.length);
-      }
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
     }
     return "";
-  }
+}

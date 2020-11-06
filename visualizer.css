@@ -16,9 +16,9 @@
   padding-bottom: 10px;
 }
 
-.np {
-  width: 75%;
-    display: inline-block;
+#nowplaying {
+  width: 50%;
+  display: inline-block;
 }
 
 #v {
@@ -27,9 +27,16 @@
   height: min-content;
   /* transform: translate(0px,9px); */
   width: 20%;
+  height: 32px;
   /* float:left; */
+  vertical-align: bottom;
 }
 
+#playPause {
+  display: inline-block;
+  width: 20%;
+  /* vertical-align: super; */
+}
 /* #content {
   height: auto;
   margin: auto;
