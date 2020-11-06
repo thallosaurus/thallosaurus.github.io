@@ -343,6 +343,8 @@ class CanvasOutput extends OutputInterface {
     if (!fnWindow) throw new Error("You didn't specify an element");
     this.canvas = document.createElement("canvas");
 
+    this.backgroundColor = getComputedStyle(document.body).getPropertyValue("--background-color") ?? "white";
+
     this.width = fnWidth;
     this.height = fnHeight;
 
@@ -353,7 +355,7 @@ class CanvasOutput extends OutputInterface {
   }
 
   reinit() {
-    this.ctx.fillStyle = "white";
+    this.ctx.fillStyle = this.backgroundColor;
     this.ctx.fillRect(0, 0, this.width * this.wQty, this.height * this.hQty + this.hQty);
   }
 

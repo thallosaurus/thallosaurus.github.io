@@ -18,5 +18,13 @@
   <label for="gain">Gain:</label>
   <input type="range" min="0" max="100" oninput="changeGain(this)" name="gain">
   <input type="text" id="fps" disabled><br>
+  <ul>
+    <li><label>Halten <input type="checkbox" name="cancelRedraw" onclick="javascript:cancelRedraw=!cancelRedraw"></label></li>
+    <li><label>Zeige Lautstärke als Farben <input type="checkbox" name="cancelRedraw" onclick="javascript:showIndividualFrequencyVolume=!showIndividualFrequencyVolume" checked></label></li>
+    <li><label>Zeige Wellenform <input type="checkbox" name="cancelRedraw" onclick="javascript:showTimeDomainData=!showTimeDomainData"></label></li>
+    <li><label>Zeige Signalspitzen<input type="checkbox" name="cancelRedraw" onclick="javascript:showPeakMeter=!showPeakMeter" checked></label></li>
+    <li><label>Zeige Frequenzen<input type="checkbox" name="cancelRedraw" onclick="javascript:showLevels=!showLevels" checked></label></li>
+
+  </ul>
 </body>
 </html>

@@ -1,12 +1,18 @@
 :root {
   --visu-height: 10px;
   --visu-width: 10px;
+  --background-color: white;
 }
 
 #content {
   height: auto;
   margin: auto;
   width: min-content;
+}
+
+body {
+  background-color: var(--background-color);
+  color: black;
 }
 
 div span {
