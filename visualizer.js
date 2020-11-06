@@ -271,6 +271,11 @@ class Main {
           alert("Bitte jetzt leiser drehen");
           this.cbStream.connect(this.audioCtx.destination);
         }
+
+if (this.musicStartCallback) {
+          this.musicStartCallback();
+        }
+
         this.playing = true;
       }).catch((e) => {
         console.log(e);
