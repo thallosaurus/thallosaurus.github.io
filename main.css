@@ -303,3 +303,36 @@ body::-webkit-scrollbar {
   #musicPlayer {
       
   }
+
+  /* LOADING ICON */
+  .waiting {
+  
+}
+
+.waiting span {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  background-color:var(--text);
+  animation-name: loading;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+}
+
+.waiting .first {
+  animation-delay: 0s;
+}
+
+.waiting .second {
+  animation-delay: .3s;
+}
+
+.waiting .third {
+  animation-delay: .6s;
+}
+
+@keyframes loading {
+    0% {transform: scaleY(1);}
+    50% {transform: scaleY(2);}
+    100% {transform: scaleY(1);}
+  }

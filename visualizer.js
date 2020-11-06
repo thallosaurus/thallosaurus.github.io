@@ -17,15 +17,6 @@ let showTimeDomainData = false;
 let showPeakMeter = true;
 let showLevels = true;
 
-const height = parseInt(getParam("h") ?? 15);
-const width = fft(getParam("bc") ?? 16);
-const clipLevel = parseInt(getParam("cl") ?? 5);
-const talkback = parseInt(getParam("tb") ?? 0) == 1;
-const useInfile = getParam("file") != null && getParam("file") != "";
-const useDOM = (getParam("useDOM") == 1) ?? false;
-const DEFAULT_GLYPH = "";
-const peakHoldTime = 1000;
-
 /**
  * Gibt eine Zahl aus, welche zwischen 2^4 und 2^15 liegt
  * @param {number} input Die Zahl, welche gerundet werden soll
@@ -157,6 +148,10 @@ class Main {
     this.capture(0);
   }
 
+  addMusicStartCallback(cb) {
+    this.musicStartCallback = cb; 
+  }
+
   set playing(v) {
     this.playState = v;
     this.output.notifyPlayState(v);
@@ -188,6 +183,17 @@ class Main {
     this.analyser = this.audioCtx.createAnalyser();
     this.analyser.fftSize = width * 2;
     // this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+  }
+
+  setFFT(fnValue) {
+    if (this.analyser != null) {
+      this.analyser.fftSize = fft(fnValue) * 2;
+
+      //reinit buffer arrays
+      this.dataArray = this.initDataArray(fnValue);
+      this.peakArray = this.initPeakMeter();
+      this.timeDomainData = new Uint8Array(width).fill(128);
+    }
   }
 
   initMicAndContext() {
@@ -223,7 +229,15 @@ class Main {
 
         fnAnalyser.connect(fnCtx.destination);
 
+        /* this.fileSource.onstart = function() {
+          alert("Ready");
+        } */
+
         this.fileSource.start();
+        console.log(this.fileSource);
+        if (this.musicStartCallback) {
+          this.musicStartCallback();
+        }
         this.playing = true;
       });
     });
@@ -303,6 +317,11 @@ class Main {
     this.fileSource?.stop();
     this.playing = false;
   }
+
+  resize(w, h) {
+    this.output.setSize(w, h);
+    this.setFFT(w);
+  }
 }
 
 /* Template Class for Output Interface */
@@ -323,6 +342,11 @@ class OutputInterface {
     this.peakColor = getComputedStyle(document.body).getPropertyValue("--accent");
 
     console.log(this);
+  }
+
+  setSize(fnWidth, fnHeight) {
+    this.width = fnWidth;
+    this.height = fnHeight;
   }
 
   referenceParent(parentObj) {
@@ -360,13 +384,16 @@ class CanvasOutput extends OutputInterface {
     if (!fnWindow) throw new Error("You didn't specify an element");
     this.canvas = document.createElement("canvas");
 
-    this.width = fnWidth;
-    this.height = fnHeight;
+    this.setSize(fnWidth, fnHeight);
 
-    this.canvas.width = fnWidth * this.wQty;
-    this.canvas.height = fnHeight * (this.hQty) + this.hQty;
     this.ctx = this.canvas.getContext("2d");
     fnWindow.append(this.canvas);
+  }
+
+  setSize(fnWidth, fnHeight) {
+    super.setSize(fnWidth, fnHeight);
+    this.canvas.width = fnWidth * this.wQty;
+    this.canvas.height = fnHeight * this.hQty;
   }
 
   reinit() {
@@ -399,7 +426,7 @@ class CanvasOutput extends OutputInterface {
 
         let color;
 
-        if (meterHeight > height - clipLevel && j > height - clipLevel) {
+        if (meterHeight > this.height - clipLevel && j > this.height - clipLevel) {
           color = "yellow";
         } else {
           color = getRedishToneHex(fnDataArray[i]);

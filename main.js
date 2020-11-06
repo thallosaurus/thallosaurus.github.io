@@ -3,6 +3,12 @@ Looks like there was an Error while catching the content.
 
 Found a bug or noticed something strange? Report it [here](https://github.com/thallosaurus/thallosaurus.github.io/issues)`;
 
+const WAITING_ICON = `<div class="waiting">
+<span class='first'></span>
+<span class='second'></span>
+<span class='third'></span>
+</div>`;
+
 const urlParams = new URL(location.href).searchParams;
 
 const docmode = urlParams.get("doc") == 1;
@@ -17,6 +23,8 @@ let drawSpeed = useAnims ? DEFAULT_DRAWSPEED : 0;
 let finished = false;
 
 let visu;
+
+let playlist = null;
 
 const SETTINGS = {
     "marked": {
@@ -73,12 +81,15 @@ async function getPage(file) {
 
 function initVisualizer(elemid) {
     visu = new Main(elemid);
+    visu.addMusicStartCallback(() => {
+        document.querySelector("#ppIcon").innerHTML = "||";
+    });
 }
 
 function playFile(name) {
     visu.playFile(name);
     document.querySelector("#filename").innerText = " " + name;
-    document.querySelector("#ppIcon").innerHTML = "||";
+    document.querySelector("#ppIcon").innerHTML = WAITING_ICON;
 }
 
 function stopFile() {
@@ -86,12 +97,32 @@ function stopFile() {
     document.querySelector("#filename").innerText = "Paused";
     document.querySelector("#ppIcon").innerHTML = "&#x25BA;";
 }
+
 function togglePlay() {
     if (!visu.playing) {
-        playFile("Hope");
+        playRandomTrack();
+        // (track);
     } else {
         stopFile();
     }
+}
+
+async function playRandomTrack() {
+    if (playlist == null) {
+        await this.getFile("playlist.json")
+        .then((request) => {
+            return request.json();
+        }).then((pl) => {
+            playlist = pl;
+        });
+    }
+
+    console.log(playlist);
+
+    let track = playlist.tracks[Math.floor(Math.random() * playlist.tracks.length)];
+    playFile(track);
+
+    // return "Hope";
 }
 
 window.onload = function () {
@@ -366,4 +397,8 @@ function getCookie(cname) {
         }
     }
     return "";
+}
+
+function enlargePlayer() {
+
 }
