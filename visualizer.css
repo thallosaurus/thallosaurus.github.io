@@ -7,13 +7,13 @@
   text-align: center;
   width: 100%;
   position:sticky;
-  bottom: 0px;
+  bottom: -1px;
   z-index: 2;
 
   line-height: 32px;
 
   padding-top: 10px;
-  padding-bottom: 20px;
+  padding-bottom: 25px;
 }
 
 #nowplaying {
