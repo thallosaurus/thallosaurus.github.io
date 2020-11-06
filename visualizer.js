@@ -136,6 +136,8 @@ class Main {
     this.output = useDOM ? new DOMOutput() : new CanvasOutput();
     this.playing = false;
 
+    this.fft = width;
+
     this.fileSource = null;
 
     this.content = document.querySelector(qSel);
@@ -147,6 +149,19 @@ class Main {
     this.output.referenceParent(this);
     this.capture(0);
   }
+
+  set fft(v) {
+    this.fftSize = fft(v) * 2;
+    // this?.analyser?.fftSize = this.fftSize;
+    if (this.analyser) {
+      this.analyser.fftSize = this.fftSize;
+      console.log
+    }
+  }
+
+  /*resize(w, h) {
+    this.output?.setSize(w, h);
+  }*/
 
   addMusicStartCallback(cb) {
     this.musicStartCallback = cb; 
@@ -181,19 +196,19 @@ class Main {
     this.disconnect(); //Disconnect old inputs, if there are any
 
     this.analyser = this.audioCtx.createAnalyser();
-    this.analyser.fftSize = width * 2;
+    this.analyser.fftSize = this.fftSize;
     // this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
   }
 
   setFFT(fnValue) {
-    if (this.analyser != null) {
-      this.analyser.fftSize = fft(fnValue) * 2;
-
+    // if (this.analyser != null) {
+      // this.analyser.fftSize = fft(fnValue) * 2;
+    // }
       //reinit buffer arrays
       this.dataArray = this.initDataArray(fnValue);
       this.peakArray = this.initPeakMeter();
       this.timeDomainData = new Uint8Array(width).fill(128);
-    }
+    // }
   }
 
   initMicAndContext() {
@@ -318,8 +333,8 @@ class Main {
     this.playing = false;
   }
 
-  resize(w, h) {
-    this.output.setSize(w, h);
+  resize(w, h, wp, hp) {
+    this.output.setSize(w, h, wp, hp);
     this.setFFT(w);
   }
 }
@@ -344,7 +359,16 @@ class OutputInterface {
     console.log(this);
   }
 
-  setSize(fnWidth, fnHeight) {
+  setSize(fnWidth, fnHeight, fnVisuWidth, fnVisuHeight) {
+    if (fnVisuHeight) {
+      document.documentElement.style.setProperty("--visu-height", fnVisuHeight);
+    }
+
+    if (fnVisuWidth) {
+      document.documentElement.style.setProperty("--visu-width", fnVisuWidth);
+    }
+
+    this.fetchColorSchemes();
     this.width = fnWidth;
     this.height = fnHeight;
   }
@@ -377,7 +401,7 @@ class OutputInterface {
 class CanvasOutput extends OutputInterface {
   constructor() {
     super();
-    this.modifiedBuffer = new Array();
+    // this.modifiedBuffer = new Array();
   }
 
   init(fnWidth, fnHeight, fnWindow = null) {
@@ -390,8 +414,8 @@ class CanvasOutput extends OutputInterface {
     fnWindow.append(this.canvas);
   }
 
-  setSize(fnWidth, fnHeight) {
-    super.setSize(fnWidth, fnHeight);
+  setSize(fnWidth, fnHeight, fnPixelWidth, fnPixelHeight) {
+    super.setSize(fnWidth, fnHeight, fnPixelWidth, fnPixelHeight);
     this.canvas.width = fnWidth * this.wQty;
     this.canvas.height = fnHeight * this.hQty;
   }
@@ -485,14 +509,16 @@ class DOMOutput extends OutputInterface {
 
     this.htmlElements = {};
 
-    for (let lY = fnHeight - 1; lY > -1; lY--) {
+    this.setSize(fnWidth, fnHeight);
+
+    for (let lY = this.fnHeight - 1; lY > -1; lY--) {
       let row = document.createElement("div");
       row.dataset.rowNumber = lY;
-      row.style.width = (width * this.wQty) + "px";
+      row.style.width = (this.width * this.wQty) + "px";
 
       this.htmlElements[lY] = {};
 
-      for (let lX = 0; lX < fnWidth; lX++) {
+      for (let lX = 0; lX < this.fnWidth; lX++) {
         let col = document.createElement("span");
         col.innerText = DEFAULT_GLYPH;
         col.dataset.colNumber = lX;
@@ -506,6 +532,12 @@ class DOMOutput extends OutputInterface {
       fnWindow.append(row);
     }
   }
+
+  /*setSize(fnWidth, fnHeight) {
+    super.setSize(fnWidth, fnHeight);
+    this.canvas.width = fnWidth * this.wQty;
+    this.canvas.height = fnHeight * this.hQty;
+  }*/
 
   reinit() {
     for (let y in this.htmlElements) {

@@ -37,6 +37,29 @@
   width: 20%;
   /* vertical-align: super; */
 }
+
+.enlarged {
+  height: 100vh;
+  position: fixed !important;
+  top: 0px;
+}
+
+.enlarged #v{
+  display: block;
+  width: 100vw;
+  height: 50vh;
+
+}
+
+.enlarged #nowplaying {
+  padding-top: 25px;
+  width: 100vw;
+}
+
+.enlarged #playPause {
+  width: 100vw;
+}
+
 /* #content {
   height: auto;
   margin: auto;

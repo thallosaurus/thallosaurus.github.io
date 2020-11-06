@@ -16,6 +16,8 @@ const useAnims = ((getHash() == DEFAULTPAGE) && !docmode && getCookie("a") !== "
 const useBreadcrumbs = urlParams.get("bc") != 0;
 const useCache = urlParams.get("nocache") != 1;
 
+let isPlayerEnlarged = false;
+
 let histArray = [getHash()];
 
 let drawSpeed = useAnims ? DEFAULT_DRAWSPEED : 0;
@@ -400,5 +402,13 @@ function getCookie(cname) {
 }
 
 function enlargePlayer() {
-
+    if (!isPlayerEnlarged) {
+        document.querySelector("#player").classList.add("enlarged");
+        visu.resize(64, 64, 5 + "px", 5 + "px");
+        isPlayerEnlarged = true;
+    } else {
+        document.querySelector("#player").classList.remove("enlarged");
+        visu.resize(width, height, 2 + "px", 2 + "px");
+        isPlayerEnlarged = false;
+    }
 }
