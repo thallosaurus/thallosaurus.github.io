@@ -1,0 +1,84 @@
+:root {
+  --visu-height: 2px;
+  --visu-width: 2px;
+}
+
+#player {
+  text-align: center;
+  width: 100%;
+  position:sticky;
+  bottom: 0px;
+  z-index: 2;
+
+  line-height: 32px;
+
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.np {
+  width: 75%;
+    display: inline-block;
+}
+
+#v {
+  display: inline-block;
+  width: min-content;
+  height: min-content;
+  /* transform: translate(0px,9px); */
+  width: 20%;
+  /* float:left; */
+}
+
+/* #content {
+  height: auto;
+  margin: auto;
+  width: min-content;
+}*/
+
+/*body {
+  background-color: var(--background);
+  color: var(--text);
+}*/
+/* 
+div span {
+  display: block;
+  float: left;
+  height: inherit;
+  width: var(--visu-width);
+}
+
+div {
+  margin-left: var(--visu-width);
+  height: var(--visu-height);
+}
+
+div:before {
+  text-align: right;
+  display: block;
+  position: absolute;
+  content: attr(data-row-number);
+  left: var(--visu-width);
+    font-family: 'Courier New', Courier, monospace;
+}
+
+* {
+  margin: 0px;
+  padding: 0px;
+}
+
+.meter {
+  color: black;
+}
+
+.clipping {
+  background-color: red;
+  color: red;
+}
+
+.peak {
+  background-color: var(--accent);
+}
+
+.last {
+} */

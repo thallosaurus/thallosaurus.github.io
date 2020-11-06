@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="colors.css">
     <link rel="stylesheet" href="main.css">
     <link rel="stylesheet" href="anims.css">
+    <link rel="stylesheet" href="visualizer.css">
     <link rel="manifest" href="manifest.webmanifest">
 
     <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
@@ -23,6 +24,7 @@
     <title>Prismflux - Home</title>
     <script src="settings.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="visualizer.js"></script>
     <script src="main.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.3/styles/default.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.3/highlight.min.js"></script>
@@ -42,10 +44,16 @@
         </div>
     </section>
 
+    <section id="player" class="fadein blackBg" style="opacity: 0">
+        <div id="v"></div>
+        <div class="np"><marquee scrollamount="2">Now Playing:<span id="filename"> Pause</span></marquee></div>
+    </section>
+
     <footer class="blackBg">
         <div id="foot" class="fadein" style="opacity: 0">(c) <span onclick="b()">2020</span> by PRiSMFLUX &bull; <a
-                href="https://github.com/thallosaurus/thallosaurus.github.io">Sourcecode</a> &bull; <a href="#CHANGELOG">Changelog</a>
-            </div>
+                href="https://github.com/thallosaurus/thallosaurus.github.io">Sourcecode</a> &bull; <a
+                href="#CHANGELOG">Changelog</a>
+        </div>
     </footer>
 </body>
 

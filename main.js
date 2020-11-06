@@ -16,6 +16,8 @@ let drawSpeed = useAnims ? DEFAULT_DRAWSPEED : 0;
 
 let finished = false;
 
+let visu;
+
 const SETTINGS = {
     "marked": {
         breaks: true
@@ -69,6 +71,20 @@ async function getPage(file) {
     }
 }
 
+function initVisualizer(elemid) {
+    visu = new Main(elemid);
+}
+
+function playFile(name) {
+    visu.playFile(name);
+    document.querySelector("#filename").innerText = " " + name;
+}
+
+function stopFile() {
+    visu.disconnect();
+    document.querySelector("#filename").innerText = " Paused";
+}
+
 window.onload = function () {
     this.registerHashListener();
     initObserver();
@@ -81,6 +97,8 @@ window.onload = function () {
         }).catch(e => {
             console.log(e);
         });
+
+        initVisualizer("#v");
 
     this.insertContent(getHash());
 }
@@ -161,8 +179,11 @@ function insertContent(page) {
 }
 
 function unhideText() {
-    document.getElementById("text_container").style.opacity = "1";
-    document.getElementById("foot").style.opacity = "1";
+    /* document.getElementById("text_container").style.opacity = "1";
+    document.getElementById("foot").style.opacity = "1"; */
+    document.querySelectorAll(".fadein").forEach(e => {
+        e.style.opacity = 1;
+    });
 
     //make page scrollable
     showPage();
