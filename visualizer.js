@@ -73,7 +73,7 @@ class Peak {
 
   update(ts) {
     if (ts > this.t + peakHoldTime) {
-      if (this.value < 0) {
+      if (this.value <= 0) {
         this.value = 0;
       } else this.value -= 5;
     }
