@@ -102,6 +102,11 @@ function sleep(time) {
   });
 }
 
+function getFromCSS(variable) {
+  let v = getComputedStyle(document.body).getPropertyValue(variable);
+  return v.trim();
+}
+
 fps = (function () {
   var lastLoop = (new Date()).getMilliseconds();
   var count = 1;
@@ -272,7 +277,7 @@ class Main {
           this.cbStream.connect(this.audioCtx.destination);
         }
 
-if (this.musicStartCallback) {
+        if (this.musicStartCallback) {
           this.musicStartCallback();
         }
 
@@ -358,8 +363,8 @@ class OutputInterface {
     if (isNaN(this.hQty)) this.hQty = 10;
 
 
-    this.backgroundColor = getComputedStyle(document.body).getPropertyValue("--background");
-    this.peakColor = getComputedStyle(document.body).getPropertyValue("--accent");
+    this.backgroundColor = getFromCSS("--background"); //getComputedStyle(document.body).getPropertyValue("--background");
+    this.peakColor = getFromCSS("--accent"); //getComputedStyle(document.body).getPropertyValue("--accent");
 
     console.log(this);
   }
