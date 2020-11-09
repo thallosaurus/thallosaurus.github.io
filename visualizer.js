@@ -213,6 +213,7 @@ class Main {
       this.dataArray = this.initDataArray(fnValue);
       this.peakArray = this.initPeakMeter();
       this.timeDomainData = new Uint8Array(width).fill(128);
+      this.fft = fnValue;
     // }
   }
 
