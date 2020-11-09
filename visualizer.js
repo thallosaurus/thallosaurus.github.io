@@ -140,7 +140,7 @@ class Main {
 
     // debugger;
 
-    this.output = useDOM ? new DOMOutput() : new CanvasOutput();
+    this.output = useDOM ? new DOMOutput() : new FunJokeOutput();
     this.playing = false;
 
     this.fft = width;
@@ -165,10 +165,6 @@ class Main {
       console.log
     }
   }
-
-  /*resize(w, h) {
-    this.output?.setSize(w, h);
-  }*/
 
   addMusicStartCallback(cb) {
     this.musicStartCallback = cb; 
@@ -371,17 +367,14 @@ class OutputInterface {
   }
 
   fetchColorSchemes() {
-    this.wQty = parseInt(getComputedStyle(document.body).getPropertyValue("--visu-width"));
+    this.wQty = parseInt(getFromCSS("--visu-width"));
     if (isNaN(this.wQty)) this.wQty = 10;
 
-    this.hQty = parseInt(getComputedStyle(document.body).getPropertyValue("--visu-height"));
+    this.hQty = parseInt(getFromCSS("--visu-height"));
     if (isNaN(this.hQty)) this.hQty = 10;
 
-
-    this.backgroundColor = getFromCSS("--background"); //getComputedStyle(document.body).getPropertyValue("--background");
-    this.peakColor = getFromCSS("--accent"); //getComputedStyle(document.body).getPropertyValue("--accent");
-
-    console.log(this);
+    this.backgroundColor = getFromCSS("--background");
+    this.peakColor = getFromCSS("--accent");
   }
 
   setSize(fnWidth, fnHeight, fnVisuWidth, fnVisuHeight) {
@@ -558,12 +551,6 @@ class DOMOutput extends OutputInterface {
     }
   }
 
-  /*setSize(fnWidth, fnHeight) {
-    super.setSize(fnWidth, fnHeight);
-    this.canvas.width = fnWidth * this.wQty;
-    this.canvas.height = fnHeight * this.hQty;
-  }*/
-
   reinit() {
     for (let y in this.htmlElements) {
       for (let x in this.htmlElements[y]) {
@@ -621,6 +608,24 @@ class DOMOutput extends OutputInterface {
     } catch (e) {
       debugger;
     }
+  }
+}
+
+class FunJokeOutput extends OutputInterface {
+  constructor() {
+    super();
+  }
+
+  init(fnWidth, fnHeight, fnWindow = null) {
+    this.element = document.querySelector("#text_container");
+  }
+
+  draw(fnDataArray, fnPeakArray) {
+    let VU = parseInt(fnDataArray.slice(0, fnDataArray.length).reduce((a,b) => a + b, 0) / fnDataArray.length);
+
+    let color = getRedishToneHex(VU);
+
+    if (this.element) this.element.style.color = color;
   }
 }
 
