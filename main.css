@@ -338,3 +338,7 @@ body::-webkit-scrollbar {
     50% {transform: scaleY(2);}
     100% {transform: scaleY(1);}
   }
+
+.no-display {
+    display: none;
+}

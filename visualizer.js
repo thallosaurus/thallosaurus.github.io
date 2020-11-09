@@ -17,6 +17,8 @@ let showTimeDomainData = false;
 let showPeakMeter = true;
 let showLevels = true;
 
+let useHTMLAudio = getParam("htmlaudio") == 1;
+
 /**
  * Gibt eine Zahl aus, welche zwischen 2^4 und 2^15 liegt
  * @param {number} input Die Zahl, welche gerundet werden soll
@@ -202,18 +204,13 @@ class Main {
 
     this.analyser = this.audioCtx.createAnalyser();
     this.analyser.fftSize = this.fftSize;
-    // this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
   }
 
   setFFT(fnValue) {
-    // if (this.analyser != null) {
-      // this.analyser.fftSize = fft(fnValue) * 2;
-    // }
       //reinit buffer arrays
       this.dataArray = this.initDataArray(fnValue);
       this.peakArray = this.initPeakMeter();
       this.timeDomainData = new Uint8Array(width).fill(128);
-    // }
   }
 
   initMicAndContext() {
@@ -232,7 +229,27 @@ class Main {
     this.disconnect();
   }
 
+  initHTMLAudio(fileName, fnCtx, fnAnalyser) {
+    console.log("It's working");
+
+    let htmlAudio = document.querySelector("audio#playerHTML");
+
+    htmlAudio.onpause = (e) => {
+      this.stopFile();
+    }
+
+    this.HTMLSource = fnCtx.createMediaElementSource(htmlAudio);
+    this.HTMLSource.connect(fnAnalyser);
+    fnAnalyser.connect(fnCtx.destination);
+    // this.HTMLSource.play();
+  }
+
   initAudioFile(fileName, fnCtx, fnAnalyser) {
+    if (useHTMLAudio) {
+      this.initHTMLAudio(fileName, fnCtx, fnAnalyser);
+      return;
+    }
+
     fetch("songs/" + fileName + ".mp3").then((res) => {
       if (res.ok) {
         return res.arrayBuffer();
@@ -248,10 +265,6 @@ class Main {
         this.fileSource.connect(lgain);
 
         fnAnalyser.connect(fnCtx.destination);
-
-        /* this.fileSource.onstart = function() {
-          alert("Ready");
-        } */
 
         this.fileSource.start();
         console.log(this.fileSource);
@@ -341,6 +354,8 @@ class Main {
     this.mediaStream?.getTracks()[0].stop();
     this.fileSource?.stop();
     this.playing = false;
+
+    if (this.HTMLSource) this.HTMLSource.disconnect();
   }
 
   resize(w, h, wp, hp) {
