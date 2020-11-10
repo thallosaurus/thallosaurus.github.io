@@ -41,8 +41,10 @@ function fft(input) {
  * Initialisiert den FPS Counter
  */
 function countFPS() {
-  fpsCounter ??= document.querySelector("#fps");
-  fpsCounter.value = fps();
+  if (!fpsCounter) {
+    fpsCounter = document.querySelector("#fps");
+    fpsCounter.value = fps();
+  }
   requestAnimationFrame(countFPS);
 }
 
