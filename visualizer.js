@@ -13,9 +13,9 @@
 let main;
 let cancelRedraw = false;
 let showIndividualFrequencyVolume = true;
-let showTimeDomainData = false;
-let showPeakMeter = true;
-let showLevels = true;
+let showTimeDomainData = getParam("tdd") == 1;
+let showPeakMeter = !showTimeDomainData;
+let showLevels = !showTimeDomainData;
 
 /**
  * Gibt eine Zahl aus, welche zwischen 2^4 und 2^15 liegt
@@ -202,6 +202,7 @@ class Main {
 
     this.analyser = this.audioCtx.createAnalyser();
     this.analyser.fftSize = this.fftSize;
+    // this.analyser.smoothingTimeConstant = 0.4;
     // this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
   }
 
@@ -212,7 +213,7 @@ class Main {
       //reinit buffer arrays
       this.dataArray = this.initDataArray(fnValue);
       this.peakArray = this.initPeakMeter();
-      this.timeDomainData = new Uint8Array(width).fill(128);
+      this.timeDomainData = new Uint8Array(fnValue).fill(128);
       this.fft = fnValue;
     // }
   }
