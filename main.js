@@ -142,6 +142,10 @@ window.onload = function () {
 
     initVisualizer("#v");
 
+    if (useHTMLAudio) {
+        document.querySelector("#audioPlayer").className = "";
+    }
+
     this.insertContent(getHash());
 }
 

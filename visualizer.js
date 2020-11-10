@@ -17,6 +17,8 @@ let showTimeDomainData = getParam("tdd") == 1;
 let showPeakMeter = !showTimeDomainData;
 let showLevels = !showTimeDomainData;
 
+let useHTMLAudio = getParam("htmlaudio") == 1;
+
 /**
  * Gibt eine Zahl aus, welche zwischen 2^4 und 2^15 liegt
  * @param {number} input Die Zahl, welche gerundet werden soll
@@ -164,10 +166,6 @@ class Main {
     }
   }
 
-  /*resize(w, h) {
-    this.output?.setSize(w, h);
-  }*/
-
   addMusicStartCallback(cb) {
     this.musicStartCallback = cb; 
   }
@@ -207,15 +205,11 @@ class Main {
   }
 
   setFFT(fnValue) {
-    // if (this.analyser != null) {
-      // this.analyser.fftSize = fft(fnValue) * 2;
-    // }
       //reinit buffer arrays
       this.dataArray = this.initDataArray(fnValue);
       this.peakArray = this.initPeakMeter();
       this.timeDomainData = new Uint8Array(fnValue).fill(128);
       this.fft = fnValue;
-    // }
   }
 
   initMicAndContext() {
@@ -234,7 +228,27 @@ class Main {
     this.disconnect();
   }
 
+  initHTMLAudio(fileName, fnCtx, fnAnalyser) {
+    console.log("It's working");
+
+    let htmlAudio = document.querySelector("audio#playerHTML");
+
+    htmlAudio.onpause = (e) => {
+      this.stopFile();
+    }
+
+    this.HTMLSource = fnCtx.createMediaElementSource(htmlAudio);
+    this.HTMLSource.connect(fnAnalyser);
+    fnAnalyser.connect(fnCtx.destination);
+    // this.HTMLSource.play();
+  }
+
   initAudioFile(fileName, fnCtx, fnAnalyser) {
+    if (useHTMLAudio) {
+      this.initHTMLAudio(fileName, fnCtx, fnAnalyser);
+      return;
+    }
+
     fetch("songs/" + fileName + ".mp3").then((res) => {
       if (res.ok) {
         return res.arrayBuffer();
@@ -250,10 +264,6 @@ class Main {
         this.fileSource.connect(lgain);
 
         fnAnalyser.connect(fnCtx.destination);
-
-        /* this.fileSource.onstart = function() {
-          alert("Ready");
-        } */
 
         this.fileSource.start();
         console.log(this.fileSource);
@@ -343,6 +353,8 @@ class Main {
     this.mediaStream?.getTracks()[0].stop();
     this.fileSource?.stop();
     this.playing = false;
+
+    if (this.HTMLSource) this.HTMLSource.disconnect();
   }
 
   resize(w, h, wp, hp) {
@@ -358,17 +370,14 @@ class OutputInterface {
   }
 
   fetchColorSchemes() {
-    this.wQty = parseInt(getComputedStyle(document.body).getPropertyValue("--visu-width"));
+    this.wQty = parseInt(getFromCSS("--visu-width"));
     if (isNaN(this.wQty)) this.wQty = 10;
 
-    this.hQty = parseInt(getComputedStyle(document.body).getPropertyValue("--visu-height"));
+    this.hQty = parseInt(getFromCSS("--visu-height"));
     if (isNaN(this.hQty)) this.hQty = 10;
 
-
-    this.backgroundColor = getFromCSS("--background"); //getComputedStyle(document.body).getPropertyValue("--background");
-    this.peakColor = getFromCSS("--accent"); //getComputedStyle(document.body).getPropertyValue("--accent");
-
-    console.log(this);
+    this.backgroundColor = getFromCSS("--background");
+    this.peakColor = getFromCSS("--accent");
   }
 
   setSize(fnWidth, fnHeight, fnVisuWidth, fnVisuHeight) {
@@ -545,12 +554,6 @@ class DOMOutput extends OutputInterface {
     }
   }
 
-  /*setSize(fnWidth, fnHeight) {
-    super.setSize(fnWidth, fnHeight);
-    this.canvas.width = fnWidth * this.wQty;
-    this.canvas.height = fnHeight * this.hQty;
-  }*/
-
   reinit() {
     for (let y in this.htmlElements) {
       for (let x in this.htmlElements[y]) {
@@ -608,6 +611,24 @@ class DOMOutput extends OutputInterface {
     } catch (e) {
       debugger;
     }
+  }
+}
+
+class FunJokeOutput extends OutputInterface {
+  constructor() {
+    super();
+  }
+
+  init(fnWidth, fnHeight, fnWindow = null) {
+    this.element = document.querySelector("#text_container");
+  }
+
+  draw(fnDataArray, fnPeakArray) {
+    let VU = parseInt(fnDataArray.slice(0, fnDataArray.length).reduce((a,b) => a + b, 0) / fnDataArray.length);
+
+    let color = getRedishToneHex(VU);
+
+    if (this.element) this.element.style.color = color;
   }
 }
 
