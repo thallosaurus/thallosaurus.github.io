@@ -1,0 +1,78 @@
+/* CSS for webkit HTML Audio Player */
+/* Still not ready */
+
+/* Reference Audio Element:
+  <audio id="a" controls src="https://file-examples-com.github.io/uploads/2017/11/file_example_MP3_5MG.mp3" controlsList="nodownload"></audio>
+*/
+
+audio {
+/*   border: 1px solid red;
+  border-radius: 100px; */
+  height: 20px;
+}
+
+audio::-webkit-media-controls-play-button {
+  
+}
+
+audio::-webkit-media-controls-enclosure {
+  /* background-color: rgba(255, 0, 0, 0); */
+  background-color: white;
+  border-radius: 0px;
+}
+
+/*audio::-webkit-media-controls-timeline {
+  background-color: red;
+}*/
+
+audio::-webkit-media-controls-current-time-display,
+audio::-webkit-media-controls-time-remaining-display {
+/*   color: white; */
+  font-family: "Courier New";
+  box-shadow: none;
+}
+
+audio::-webkit-media-controls-play-button {
+  background-color: white;
+}
+
+audio::-webkit-media-controls-timeline {
+ background-color: white;
+}
+
+audio::-webkit-media-controls-volume-slider {
+  background-color: white;
+}
+
+/*
+audio::-webkit-media-controls-panel
+
+audio::-webkit-media-controls-mute-button
+
+audio::-webkit-media-controls-play-button
+
+audio::-webkit-media-controls-timeline-container
+
+audio::-webkit-media-controls-current-time-display
+
+audio::-webkit-media-controls-time-remaining-display
+
+audio::-webkit-media-controls-timeline
+
+audio::-webkit-media-controls-volume-slider-container
+
+audio::-webkit-media-controls-volume-slider
+
+audio::-webkit-media-controls-seek-back-button
+
+audio::-webkit-media-controls-seek-forward-button
+
+audio::-webkit-media-controls-fullscreen-button
+
+audio::-webkit-media-controls-rewind-button
+
+audio::-webkit-media-controls-return-to-realtime-button
+
+audio::-webkit-media-controls-toggle-closed-captions-button
+
+*/
