@@ -408,10 +408,12 @@ function getCookie(cname) {
 function enlargePlayer() {
     if (!isPlayerEnlarged) {
         document.querySelector("#player").classList.add("enlarged");
+        document.body.classList.add("prevent-scrolling");
         visu.resize(64, 64, 5 + "px", 5 + "px");
         isPlayerEnlarged = true;
     } else {
         document.querySelector("#player").classList.remove("enlarged");
+        document.body.classList.remove("prevent-scrolling");
         visu.resize(width, height, 2 + "px", 2 + "px");
         isPlayerEnlarged = false;
     }
