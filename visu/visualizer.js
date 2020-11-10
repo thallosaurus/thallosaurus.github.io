@@ -17,6 +17,8 @@ let showTimeDomainData = false;
 let showPeakMeter = true;
 let showLevels = true;
 
+let redrawSpeed = 25;
+
 const height = parseInt(getParam("h") ?? 15);
 const width = fft(getParam("bc") ?? 16);
 const clipLevel = parseInt(getParam("cl") ?? 5);
@@ -263,7 +265,7 @@ class Main {
 
     setTimeout(() => {
       requestAnimationFrame((t) => { this.capture(t) });
-    }, 25);
+    }, redrawSpeed);
   }
 
   createDebugAdapter(fnToken) {
