@@ -134,11 +134,14 @@ class Main {
     if (getParam("dbg")) {
       this.createDebugAdapter(getParam("dbg"));
     }
-
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    
+    let darkModeListener = window.matchMedia('(prefers-color-scheme: dark)');
+    if ("addEventListener" in darkModeListener) {
+      darkModeListener.addEventListener('change', e => {
       // const newColorScheme = e.matches ? "dark" : "light";
-      this.output.fetchColorSchemes();
-    });
+        this.output.fetchColorSchemes();
+      });
+    }
 
     // debugger;
 
