@@ -15,6 +15,7 @@ const docmode = urlParams.get("doc") == 1;
 const useAnims = ((getHash() == DEFAULTPAGE) && !docmode && getCookie("a") !== "shown") || urlParams.get("anims") == 1;
 const useBreadcrumbs = urlParams.get("bc") != 0;
 const useCache = urlParams.get("nocache") != 1;
+const showAudioPlayerBeta = urlParams.get("visu") == 1;
 
 let isPlayerEnlarged = false;
 
@@ -82,6 +83,9 @@ async function getPage(file) {
 }
 
 function initVisualizer(elemid) {
+    if (showAudioPlayerBeta) {
+        document.getElementById("player").classList.remove("no-display");
+    }
     visu = new Main(elemid);
     visu.addMusicStartCallback(() => {
         document.querySelector("#ppIcon").innerHTML = "||";
