@@ -47,13 +47,13 @@
                         Input your JSON-String here: (Leave Empty for example data)
 
                     <div>
-                        <textarea id="jsonInput" value="{}"></textarea>
+                        <textarea rows=20 id="jsonInput" value="{}"></textarea>
                     </div>
                     <input type="checkbox" id="defaultExpandAll">Expand All
                     </p>
                 </main>
                 <footer class="modal__footer">
-                    <button class="modal__btn modal__btn-primary" onclick="loadJson()"
+                    <button class="modal__btn modal__btn-primary" onclick="loadJson()" ontouchstart="loadJson()"
                         data-micromodal-close>Load</button>
                     <!-- <button class="modal__btn" data-micromodal-close aria-label="Close this dialog window">Close</button> -->
                 </footer>

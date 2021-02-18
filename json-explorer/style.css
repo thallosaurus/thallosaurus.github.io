@@ -160,10 +160,12 @@ span.string {
 
 span.string::before {
     content: "'";
+    font-size: 16px;
 }
 
 span.string::after {
     content: "'";
+    font-size: 16px;
 }
 
 span.number {

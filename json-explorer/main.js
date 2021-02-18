@@ -155,6 +155,7 @@ function removeTree(HTMLElement) {
 }
 
 function loadJson() {
+    // alert("Loading...");
     let g = document.getElementById("jsonInput").value;
     let f;
     if (g != "") {
@@ -186,6 +187,7 @@ function openModal(id = "modal-1") {
 }
 
 window.onload = () => {
+    console.log("Hello");
     MicroModal.init();
     openModal("modal-1");
     // removeTree(document.getElementById("tree"));
