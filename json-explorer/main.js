@@ -1,6 +1,6 @@
 let _layerLimit = 100;
 let layer = 0;  //Counts how many layers deep we are
-let pathSelector = [""];
+let pathSelector = [""];        //Buffer which gets all keys pushed to, so we can construct a object accessor string
 
 function createTreeLayer(rootHTMLELement, obj = {}) {
     let listLayer = document.createElement("ul");
@@ -22,7 +22,8 @@ function createTreeLayer(rootHTMLELement, obj = {}) {
         pathSelector[layer] = __p;  //push the path selector to the path stack
 
         let li = document.createElement("li");
-        li.title = `Type: ${typeof obj[o]}\nObject-Selector: ${joinPathSelector(pathSelector)}`;
+        li.title = `Type: ${typeof obj[o]}`;
+        li.dataset.selector = joinPathSelector(pathSelector);
         li.dataset.layer = layer;
 
         let _type = obj[o] == null ? "null" : typeof obj[o];
@@ -52,6 +53,7 @@ function createTreeLayer(rootHTMLELement, obj = {}) {
             li.dataset.show = false;
 
             li.addEventListener("click", showNested);
+            li.addEventListener("contextmenu", copySelectorToClipboard);
             // console.log("--- NESTING ---");
             if (layer <= _layerLimit) {
                 layer++;                                                            //Increment Layer Counter by one
@@ -117,8 +119,14 @@ function createLayerLimitExceeded() {
     return ul; 
 }
 
+async function copySelectorToClipboard(e) {
+    e.preventDefault();
+    // console.log(e.target.dataset.selector);
+    await navigator.clipboard.writeText("object." + e.target.dataset.selector);
+}
+
 function showNested(event) {
-    // console.log(event);
+    console.log(event);
     event.target.dataset.show = (event.target.dataset.show == "true" ? "false" : "true");
 }
 
@@ -162,6 +170,13 @@ function loadJson() {
     } else {
         removeTree(document.getElementById("tree"));
         createTreeLayer(document.getElementById("tree"), exampleData); 
+    }
+
+    let expand = document.querySelector("#defaultExpandAll").checked;
+    if (expand) {
+        showAll();
+    } else {
+        hideAll();
     }
     // console.log(g);
 }

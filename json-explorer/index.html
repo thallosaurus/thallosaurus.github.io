@@ -15,17 +15,20 @@
 
 <body class="color-0">
     <div id="treeContainer" class="color-0 treeContainerRestricted">
-        <span>
+        <!--<span>
             <input type="button" value="Show All" onclick="showAll()">
             <input type="button" value="Hide All" onclick="hideAll()">
-        </span>
+        </span>-->
         <!-- <pre> -->
         <div id="tree"></div>
         <!-- </pre> -->
     </div>
 
-    <div id="settingsTrigger">
-        <button data-custom-close="modal-1" onclick="openModal()">Settings</button>
+    <div id="edgeToolbar">
+        <div id="container" width="100px" height="100px" class="color-1">
+            <img src="icons/open-folder.svg" onclick="openModal('modal-1')">
+            <img src="icons/settings.svg" onclick="openModal('modal-2')">
+        </div>
     </div>
 
     <!-- Micromodal Modal Window -->
@@ -46,6 +49,7 @@
                     <div>
                         <textarea id="jsonInput" value="{}"></textarea>
                     </div>
+                    <input type="checkbox" id="defaultExpandAll">Expand All
                     </p>
                 </main>
                 <footer class="modal__footer">

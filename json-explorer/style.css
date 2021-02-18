@@ -2,13 +2,21 @@ ul {
     list-style: none;
     /* padding-right: 40px; */
     padding-bottom: 5px;
+    padding-left: 30px;
     margin-top: 0px;
-    width: max-content;
+    overflow:hidden;
+    /* width: max-content; */
     /* padding-left: 0px; */
 }
 
+ul.warning {
+    width: max-content;
+}
+
 li {
-    width: inherit;
+    width: max-content;
+    /* width: -webkit-fill-available; */
+    padding-right: 10px;
 }
 
 li:before {
@@ -29,20 +37,34 @@ li.object-icon {
 
 li[data-show="true"]:before {
     content: url("hide.gif");
+    /* content: url("icons/right-arrow.svg"); */
     cursor: pointer;
 }
 
 li[data-show="false"]:before {
     content: url("show.gif");
+    /* content: url("icons/right-arrow.svg"); */
     cursor: pointer;
+}
+
+li[data-show="true"]:after {
+    content: " ->";
+}
+
+li + ul {
+    transition: all .1s linear;
 }
 
 li[data-show="true"] + ul {
     display: block;
+    /* max-height: auto; */
+    /* transform: scaleY(1); */
 }
 
 li[data-show="false"] + ul {
     display: none;
+    /* max-height: 0px; */
+    /* transform: translateX(0%); */
 }
 
 li:hover span.toolbar {
@@ -58,7 +80,8 @@ li span.toolbar {
 
 #tree {
     font-size: 16px;
-    width: min-content;
+    width: max-content;
+    min-width: 100%;
     font-family: monospace;
 }
 
@@ -70,22 +93,6 @@ li span.toolbar {
 
 #jsonInput {
     width: -webkit-fill-available;
-}
-
-.color-0 {
-    background-color: #fff5c9;
-}
-
-.color-1 {
-    background-color: #eeffc9;
-}
-
-.color-2 {
-    background-color: #ffdac9;
-}
-
-.color-3 {
-    background-color: #ffc9d3;
 }
 
 body {
@@ -102,8 +109,8 @@ body {
     font-style: italic;
 }
 
-.treeContainerRestricted_ {
-    width: 800px;
+.treeContainerRestricted {
+    width: 650px;
     height: 900px;
     overflow: auto;
 }
@@ -165,4 +172,36 @@ span.number {
 
 span.null {
     color: grey;
+}
+
+#edgeToolbar {
+    display: inline;
+    position: fixed;
+    right: 0;
+    top: 0;
+}
+
+#edgeToolbar #container img {
+    width: 50px;
+    height: 50px;
+}
+
+.color-0 {
+    /* background-color: #fff5c9; */
+    background-color: #d9e1fc;
+}
+
+.color-1 {
+    /* background-color: #eeffc9; */
+    background-color: #fcd9e1;
+}
+
+.color-2 {
+    /* background-color: #ffdac9; */
+    background-color: #e1fcd9;
+}
+
+.color-3 {
+    /* background-color: #ffc9d3; */
+    background-color: #f4d9fc;
 }
