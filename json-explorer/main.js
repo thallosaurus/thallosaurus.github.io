@@ -1,6 +1,7 @@
-let _layerLimit = 100;
+// let _layerLimit;
 let layer = 0;  //Counts how many layers deep we are
-let pathSelector = [""];        //Buffer which gets all keys pushed to, so we can construct a object accessor string
+let pathSelector = [""];        //Buffer which gets all keys pushed to, so we can construct an object accessor string
+let searchParams = new URLSearchParams(window.location.search);
 
 function createTreeLayer(rootHTMLELement, obj = {}) {
     let listLayer = document.createElement("ul");
@@ -38,6 +39,7 @@ function createTreeLayer(rootHTMLELement, obj = {}) {
         listLayer.appendChild(li);
         let iconClass = obj[o] == null ? "null-icon" : typeof obj[o] + "-icon";
         li.classList.add(iconClass);                                        //push object type to class list so we can visually differenciate between values
+        li.addEventListener("contextmenu", copySelectorToClipboard);        //override context menu, so that a right click will copy the object accessor
 
         if (typeof obj[o] === "object" && obj[o] != null/*&& !(obj[o] instanceof Array)*/) {         //Object is not an array and can be added to tree, recursive call to the nested object
             try {
@@ -53,9 +55,8 @@ function createTreeLayer(rootHTMLELement, obj = {}) {
             li.dataset.show = false;
 
             li.addEventListener("click", showNested);
-            li.addEventListener("contextmenu", copySelectorToClipboard);
             // console.log("--- NESTING ---");
-            if (layer <= _layerLimit) {
+            if (layer <= window.localStorage.maxLayerDepth) {
                 layer++;                                                            //Increment Layer Counter by one
                 pathSelector.push("");
                 createTreeLayer(listLayer, obj[o]);
@@ -121,12 +122,13 @@ function createLayerLimitExceeded() {
 
 async function copySelectorToClipboard(e) {
     e.preventDefault();
-    // console.log(e.target.dataset.selector);
-    await navigator.clipboard.writeText("object." + e.target.dataset.selector);
+    // debugger;
+    // console.log(e.target);
+    await navigator.clipboard.writeText("object." + e.currentTarget.dataset.selector);
 }
 
 function showNested(event) {
-    console.log(event);
+    // console.log(event);
     event.target.dataset.show = (event.target.dataset.show == "true" ? "false" : "true");
 }
 
@@ -186,10 +188,49 @@ function openModal(id = "modal-1") {
     MicroModal.show(id);
 }
 
+
+function init() {
+    let url = searchParams.get("url");
+    let method = searchParams.get("method");
+    let expand = searchParams.get("expand") == "on";
+
+    // console.log(url, method, expand);
+
+    let showOpenModal = !(method != null && url != null);
+
+    if (showOpenModal) {
+        openModal("modal-3");
+    } else {
+        loadUrl(url, method, (d) => {
+            // console.log(d);
+            removeTree(document.getElementById("tree"));
+            createTreeLayer(document.getElementById("tree"), d);
+
+            if (expand) {
+                showAll();
+            } else {
+                hideAll();
+            }
+        });
+    }
+}
+
+function setup() {
+    if (!window.localStorage.maxLayerDepth) {
+        window.localStorage.maxLayerDepth = 10;
+    }
+
+    window.localStorage.maxLayerDepth;
+
+    document.getElementById("layerdepthSettings").value = window.localStorage.maxLayerDepth;
+}
+
 window.onload = () => {
-    console.log("Hello");
+    // console.log("Hello");
+    setup();
     MicroModal.init();
-    openModal("modal-1");
+    init();
+    // openModal("modal-1");
     // removeTree(document.getElementById("tree"));
     // createTreeLayer(document.getElementById("tree"));
 }

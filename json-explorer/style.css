@@ -15,7 +15,6 @@ ul.warning {
 
 li {
     width: max-content;
-    /* width: -webkit-fill-available; */
     padding-right: 10px;
 }
 
@@ -206,4 +205,12 @@ span.null {
 .color-3 {
     /* background-color: #ffc9d3; */
     background-color: #f4d9fc;
+}
+
+div[role='dialog'] {
+    width: 500px;
+}
+
+input#jsonHttp {
+    width: -webkit-fill-available;
 }
