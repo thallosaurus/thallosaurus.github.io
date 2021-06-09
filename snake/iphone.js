@@ -1,6 +1,10 @@
 let x1, y1, x2, y2;
 
 function ontouchstart(event) {
+    if (event.touches.length > 2) {
+        keyHandler(K_PAUSE);
+        return;
+    }
     x1 = event.touches[0].clientX;
     y1 = event.touches[0].clientY;
 }
@@ -15,9 +19,9 @@ function ontouchmove(event) {
 
 function ontouchend(event) {
     console.log(event);
-    if (event.touches.length > 2) {
+/*     if (event.touches.length > 2) {
         keyHandler(K_PAUSE);
-    }
+    } */
 }
 
 function resetCoordinates() {

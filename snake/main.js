@@ -67,7 +67,7 @@ window.onload = async function () {
     canvas = document.getElementById("canvas"),
         ctx = canvas.getContext("2d");
 
-    snakeheadSprites = await loadImage('head.png');
+    snakeheadSprites = await loadImage('head.png', 25, 25);
     pauseSprite = await loadImage('pause.png', 100, 100);
 
     updateCanvasSize();
@@ -432,4 +432,8 @@ class Item extends SnakePart {
         if (super.getBlockHeight() < 1) return getCanvasHeight() * 1;
         return super.getBlockHeight() - 6;
     }
+}
+
+function getCSSVariable() {
+
 }
