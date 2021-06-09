@@ -9,5 +9,5 @@ I've worked on several projects of which a few are still online.
 * [discord-bot-framework](https://github.com/thallosaurus/discord-bot-framework) - provides an easy way to create Discord bots
 * [telegram-yt-bot](https://github.com/thallosaurus/telegram-yt-downloader) - a bot which downloads youtube links and replies with a converted mp3 file 
 * [url-shortener](https://github.com/thallosaurus/url-shortener) - a barebones url shortener
-* [snake](/snake/index.html) - a small game to kill the time
+* [snake](snake/index.html) - a small game to kill the time
 * Several other projects I can't talk about publicly
