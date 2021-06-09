@@ -1,3 +1,15 @@
+function calculateRatio(num_1, num_2){
+    for(num=num_2; num>1; num--) {
+        if((num_1 % num) == 0 && (num_2 % num) == 0) {
+            num_1=num_1/num;
+            num_2=num_2/num;
+        }
+    }
+    // var ratio = num_1+":"+num_2;
+    return [num_1, num_2];
+}
+
+
 const HEIGHT = 25;
 // const HEIGHT = Math.floor(window.innerHeight / 25)
 const WIDTH = 35;
