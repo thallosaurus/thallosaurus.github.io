@@ -1,7 +1,7 @@
 let x1, y1, x2, y2;
 
 function ontouchstart(event) {
-    if (event.touches.length > 2) {
+    if (event.touches.length > 1) {
         keyHandler(K_PAUSE);
         return;
     }
