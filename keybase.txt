@@ -1,0 +1,56 @@
+==================================================================
+https://keybase.io/thallosaurus
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://prismflux.de
+  * I am thallosaurus (https://keybase.io/thallosaurus) on keybase.
+  * I have a public key ASAXMKjeAxM29Tj35ancG1UwAULdbS_GD4XPRXdsIeH3SQo
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "01201730a8de031336f538f7e5a9dc1b55300142dd6d2fc60f85cf45776c21e1f7490a",
+      "host": "keybase.io",
+      "kid": "01201730a8de031336f538f7e5a9dc1b55300142dd6d2fc60f85cf45776c21e1f7490a",
+      "uid": "04bf7a03d8e19df651e4b7b0515b2519",
+      "username": "thallosaurus"
+    },
+    "merkle_root": {
+      "ctime": 1626792111,
+      "hash": "41bb915c4fd570edf2377c3ad544d17834f2c86adea33dcd06f0bace5609568a09680100f75300b121c465050a48e943da18a8e655c353cd2380edddc41cf63b",
+      "hash_meta": "9aaf59b717b8fb6a5f6b8da3e1578ac7dcc424826289d21018db73d4f7cc6e48",
+      "seqno": 20411256
+    },
+    "service": {
+      "entropy": "cnQbSm6Ihm9yFEzkToksYS1v",
+      "hostname": "prismflux.de",
+      "protocol": "https:"
+    },
+    "type": "web_service_binding",
+    "version": 2
+  },
+  "client": {
+    "name": "keybase.io go client",
+    "version": "5.7.0"
+  },
+  "ctime": 1626792120,
+  "expire_in": 504576000,
+  "prev": "1f4df1f1f1c91c528da487694e3c2746a1624ea51a799f074468899fb2e10d7a",
+  "seqno": 8,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgFzCo3gMTNvU49+Wp3BtVMAFC3W0vxg+Fz0V3bCHh90kKp3BheWxvYWTESpcCCMQgH03x8fHJHFKNpIdpTjwnRqFiTqUaeZ8HRGiJn7LhDXrEIGXJf2K6Jg136FABfMWdw92P4/J6HdRBMN5S61qDaNGEAgHCo3NpZ8RAw8DB/u0+Zq0BjoEPZiXdtywuvm2ZVfOqoN80nLxo6EbRXNhocnGGzX5P292LKp6aDpLeItjcLOIea7OhazghC6hzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIFuhuvZb4fXut8Rb1nU+5aWFHaQkcM99ryc1rwFzC+aho3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/thallosaurus
+
+==================================================================
