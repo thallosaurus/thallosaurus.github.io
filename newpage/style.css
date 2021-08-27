@@ -1,0 +1,64 @@
+body {
+    background-color: black;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.skewed {
+    padding-left: 25%;
+    padding-right: 25%;
+}
+
+.page {
+    height: 100vh;
+    overflow:auto;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+}
+
+nav {
+    float: right;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    width: 200px;
+    background-color: white;
+    color:black;
+}
+
+header {
+    background-color: black;
+    color: white;
+    position: fixed;
+    top: 0;
+    padding-bottom: 1em;
+    text-align: center;
+    width:50%;
+}
+
+main > div, header, footer {
+    display: flex;
+    scroll-snap-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+main > div {
+    width: 100%;
+    height: 100vh;
+}
+
+.red {
+    background-color: red;
+}
+.green {
+    background-color: green;
+}
+.blue {
+    background-color: blue;
+}
+
+.artist-name-container {
+    /* display: block; */
+    width: 100vw;
+}
