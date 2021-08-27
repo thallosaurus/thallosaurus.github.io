@@ -22,6 +22,7 @@ window.onload = () => {
         //console.log(mouseX, mouseY);
     });
 
+    document.querySelector("#hidebtn").addEventListener("click", hideCard));
 
     setup();
     requestAnimationFrame(loop);
