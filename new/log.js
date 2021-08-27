@@ -1,18 +1,25 @@
 function log() {
     return new Promise(async (res, rej) => {
-        let file = (await (await fetch("log.txt")).text());
 
-        file = file.split("\r");
+        if (shouldLogPlay()) {
+            let file = (await (await fetch("log.txt")).text());
 
-        // console.log(file);
+            file = file.split("\r");
 
-        for (let i = 0; i < file.length; i++) {
-            await typeOut(file[i]);
+            // console.log(file);
+
+            for (let i = 0; i < file.length; i++) {
+                await typeOut(file[i]);
+            }
+
+            document.querySelector(".log-container").classList.toggle("hide");
+
+            disableLog();
+
+            setTimeout(res, 500);
+        } else {
+            res();
         }
-
-        document.querySelector(".log-container").classList.toggle("hide");
-
-        setTimeout(res, 500);
     });
 }
 
@@ -22,14 +29,18 @@ function isValidChar(c) {
 }
 
 function shouldLogPlay() {
-    return window.localStorage.playLog ?? true;
+    if (window.localStorage.playLog == undefined) {
+        window.localStorage.playLog = true;
+    }
+    
+    return window.localStorage.playLog;
 }
 
 function disableLog() {
     return window.localStorage.playLog = false;
 }
 
-function disableLog() {
+function enableLog() {
     return window.localStorage.playLog = true;
 }
 
@@ -38,21 +49,22 @@ async function typeOut(text) {
     return new Promise((res, rej) => {
 
         // if (isValidChar(text)) {
-            if (text.includes("{{TIME}}")) {
-                text = text.replace("{{TIME}}", "");
-                setTimeout(res, 500);
-            } if (text.includes("{{SKIP}}")) {
-                text = text.replace("{{SKIP}}");
-                //noop
-            } else {
-                setTimeout(res, 2);
-            }
+        if (text.includes("{{TIME}}")) {
+            text = text.replace("{{TIME}}", "");
+            setTimeout(res, 500);
+        } else if (text.includes("{{SKIP}}")) {
+            text = text.replace("{{SKIP}}");
+            res();
+            //noop
+        } else {
+            setTimeout(res, 2);
+        }
 
-            e.innerText += text;
+        e.innerText += text;
         // } else {
-            // res();
+        // res();
         // }
 
-        document.querySelector(".log-container").scrollBy(0,100);
+        document.querySelector(".log-container").scrollBy(0, 100);
     });
 }
