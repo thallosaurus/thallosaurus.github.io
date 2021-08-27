@@ -200,3 +200,7 @@ class DebugCircle {
         this.ts = ts;
     }
 }
+
+function hideCard() {
+    document.querySelector(".main-container").classList.toggle("hide");
+}
