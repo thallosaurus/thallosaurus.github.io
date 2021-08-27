@@ -12,13 +12,25 @@ function log() {
 
         document.querySelector(".log-container").classList.toggle("hide");
 
-        res();
+        setTimeout(res, 500);
     });
 }
 
 function isValidChar(c) {
     // return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890".includes(c);
     return true;
+}
+
+function shouldLogPlay() {
+    return window.localStorage.playLog ?? true;
+}
+
+function disableLog() {
+    return window.localStorage.playLog = false;
+}
+
+function disableLog() {
+    return window.localStorage.playLog = true;
 }
 
 async function typeOut(text) {
@@ -29,8 +41,11 @@ async function typeOut(text) {
             if (text.includes("{{TIME}}")) {
                 text = text.replace("{{TIME}}", "");
                 setTimeout(res, 500);
+            } if (text.includes("{{SKIP}}")) {
+                text = text.replace("{{SKIP}}");
+                //noop
             } else {
-                setTimeout(res, 50);
+                setTimeout(res, 2);
             }
 
             e.innerText += text;

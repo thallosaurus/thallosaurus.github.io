@@ -79,3 +79,25 @@ body {
 .centered {
     text-align: center;
 }
+
+@media (pointer:none), (pointer:coarse) {
+    .my-name {
+        font-size: 24px;
+        font-family: 'Cinzel Decorative', cursive;
+    }
+
+    .main-container {
+        height: 25%;
+    }
+
+    #log {
+        font-size: 5px;
+    }
+}
+
+@media (pointer:fine) {
+    .my-name {
+        font-size: 72px;
+        font-family: 'Cinzel Decorative', cursive;
+    }
+}
