@@ -5,139 +5,26 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script>
-        let canvas, ctx;
-        let circles = [];
-
-        let mouseX = 0;
-        let mouseY = 0;
-
-        let fadeIn = true;
-
-        window.onload = () => {
-            canvas = document.querySelector("#canvas");
-            ctx = canvas.getContext("2d");
-
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            canvas.addEventListener("mousemove", (e) => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-                //console.log(mouseX, mouseY);
-            });
-
-            setup();
-            requestAnimationFrame(loop);
-        }
-
-        function getAccentColor() {
-            return "red";
-        }
-
-        function getDistanceToMouseCoords(elem) {
-            let x__ = mouseX - elem.x;
-            let y__ = mouseY - elem.y;
-
-            return Math.sqrt(
-                x__ ** 2 + y__ ** 2
-            );
-        }
-
-        function setup() {
-            for (let i = 0; i < 500; i++) {
-                circles.push(new Circle(canvas));
-            }
-        }
-
-        function loop(ts) {
-            circles.forEach(e => e.update(ts));
-            ctx.fillStyle = "black";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            for (let c of circles) {
-                ctx.fillStyle = c.color;
-                //ctx.fillRect(c.x, c.y, c.radius, c.radius);
-                ctx.beginPath();
-                ctx.arc(c.x, c.y, c.radius / 2, 0, 2 * Math.PI);
-                ctx.fill();
-            }
-
-            connectAllTogether(circles);
-
-            //return;
-            requestAnimationFrame(loop);
-        }
-
-        function connectAllTogether(circles) {
-            for (let i = 0; i < circles.length; i++) {
-                if (circles[i + 1] !== undefined) {
-                    ctx.beginPath();
-                    ctx.strokeStyle = "white";
-                    ctx.moveTo(circles[i].x, circles[i].y);
-                    ctx.lineTo(circles[i + 1].x, circles[i + 1].y);
-                    ctx.stroke();
-                }
-            }
-        }
-
-        class Circle {
-            get x() {
-                //return this.x_;
-                return Math.sin(this.ts / this.speed * this.direction) * 3 + this.x_ + this.radius;
-            }
-
-            get y() {
-                return Math.cos(this.ts / this.speed * this.direction) * 3 + this.y_ + this.radius;
-                //return this.y_;
-            }
-
-            get hue() {
-                return getDistanceToMouseCoords(this);
-            }
-
-            constructor(canvas, x = null, y = null) {
-                this.x_ = Math.floor(Math.random() * (!x ? canvas.width + 500 : x)) - 250;
-                this.y_ = Math.floor(Math.random() * (!y ? canvas.height + 500 : y)) - 250;
-                this.ts = 0;
-                this.radius = 5;
-                this.speed = 100 + Math.random() * 500;
-                this.color = getRandomColor();
-                this.direction = Math.random() > 0.5 ? 1 : -1;
-            }
-
-            update(ts) {
-                this.ts = ts;
-            }
-
-            modulatePosition() {
-
-            }
-        }
-
-        function getRandomColor() {
-            var letters = '0123456789ABCDEF';
-            var color = '#';
-            for (var i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-    </script>
-
-    <style>
-        .background {
-            margin: 0px;
-            position: fixed;
-            top: 0px;
-            left: 0px;
-        }
-    </style>
+    <title>PRiSMFLUX</title>
+    <script src="log.js"></script>
+    <script src="main.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <canvas class="background" id="canvas" style="border: 1px solid black"></canvas>
+
+    <div id='main_content' class='invisible fullscreen'>
+        <canvas class="background" id="canvas"></canvas>
+
+        <div class='main-container'>
+            <p class='my-name centered'>PRiSMFLUX</p>
+            <p class='centered'>Coming soon!</p>
+        </div>
+    </div>
+
+    <div class='fullscreen log-container stick-to-hard-edge'>
+        <div id="log"></div>
+    </div>
 </body>
 
 </html>
