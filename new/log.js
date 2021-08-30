@@ -6,8 +6,8 @@ function log() {
         if (shouldLogPlay()) {
             let file = (await (await fetch("log.txt")).text());
 
-            // file = file.replace("\r", "");
-            file = file.split("\n");
+            // file = file.replaceAll("\r", "");
+            file = file.split("\r");
 
             // console.log(file);
 
