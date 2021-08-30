@@ -1,6 +1,8 @@
 function log() {
     return new Promise(async (res, rej) => {
 
+        // alert(shouldLogPlay());
+
         if (shouldLogPlay()) {
             let file = (await (await fetch("log.txt")).text());
 
@@ -12,14 +14,15 @@ function log() {
                 await typeOut(file[i]);
             }
 
-            document.querySelector(".log-container").classList.toggle("hide");
+            // document.querySelector(".log-container").classList.toggle("hide");
 
-            // disableLog();
+            disableLog();
 
             setTimeout(res, 500);
         } else {
             res();
         }
+        document.querySelector(".log-container").classList.toggle("hide");
     });
 }
 
@@ -33,12 +36,12 @@ function shouldLogPlay() {
         window.localStorage.playLog = true;
     }
     
-    // return window.localStorage.playLog;
-    return true;
+    return window.localStorage.playLog;
+    // return true;
 }
 
 function disableLog() {
-    return window.localStorage.playLog = false;
+    window.localStorage.playLog = false;
 }
 
 function enableLog() {
