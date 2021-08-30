@@ -6,7 +6,8 @@ function log() {
         if (shouldLogPlay()) {
             let file = (await (await fetch("log.txt")).text());
 
-            file = file.split("\r");
+            // file = file.replace("\r", "");
+            file = file.split("\n");
 
             // console.log(file);
 
@@ -33,7 +34,7 @@ function isValidChar(c) {
 
 function shouldLogPlay() {
     if (window.localStorage.playLog == undefined) {
-        window.localStorage.playLog = true;
+        window.localStorage.playLog = "true";
     }
     
     return window.localStorage.playLog === "true";

@@ -66,7 +66,7 @@ function getDistanceToMouseInPc(elem) {
 function setup() {
     for (let i = 0; i < totalElementCount; i++) {
         let stringOp = i / totalElementCount * 100;
-        console.log(stringOp);
+        // console.log(stringOp);
         circles.push(new Circle(canvas, stringOp));
     }
 
@@ -151,7 +151,7 @@ class Circle {
         this.radius = 10;
         this.speed_ = 100 + Math.random() * 500;
         this.color_ = getRandomColor(opacity);
-        console.log(this.color_);
+        // console.log(this.color_);
         this.direction = Math.random() > 0.5 ? 1 : -1;
 
         this.stringOpacity = opacity;
