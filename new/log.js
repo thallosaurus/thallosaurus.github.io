@@ -16,7 +16,7 @@ function log() {
 
             // document.querySelector(".log-container").classList.toggle("hide");
 
-            disableLog();
+            // disableLog();
 
             setTimeout(res, 500);
         } else {
@@ -36,16 +36,16 @@ function shouldLogPlay() {
         window.localStorage.playLog = true;
     }
     
-    return window.localStorage.playLog;
+    return window.localStorage.playLog === "true";
     // return true;
 }
 
 function disableLog() {
-    window.localStorage.playLog = false;
+    window.localStorage.playLog = "false";
 }
 
 function enableLog() {
-    return window.localStorage.playLog = true;
+    return window.localStorage.playLog = "true";
 }
 
 async function typeOut(text) {
