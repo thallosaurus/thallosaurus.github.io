@@ -22,6 +22,7 @@ window.onload = () => {
         //console.log(mouseX, mouseY);
     });
 
+    document.querySelector("#hidebtn").addEventListener("click", hideCard);
 
     setup();
     requestAnimationFrame(loop);
@@ -199,4 +200,8 @@ class DebugCircle {
     update(ts) {
         this.ts = ts;
     }
+}
+
+function hideCard() {
+    document.querySelector(".main-container").classList.toggle("hide");
 }
