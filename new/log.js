@@ -7,7 +7,7 @@ function log() {
             let file = (await (await fetch("log.txt")).text());
 
             // file = file.replaceAll("\r", "");
-            file = file.split("\r");
+            file = file.split("\n");
 
             // console.log(file);
 

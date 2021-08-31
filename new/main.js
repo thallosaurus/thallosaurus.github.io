@@ -1,6 +1,6 @@
 let canvas, ctx;
 let circles = [];
-let debugCircle;
+let debugCircle = [];
 
 let mouseX = 0;
 let mouseY = 0;
@@ -70,32 +70,44 @@ function setup() {
         circles.push(new Circle(canvas, stringOp));
     }
 
-    debugCircle = new DebugCircle(canvas);
+    for (let i = 0; i < totalElementCount / 2; i++) {
+        debugCircle.push(new DebugCircle(canvas));
+    }
+    // debugCircle = new DebugCircle(canvas);
 }
 
 function drawDebugCircle() {
-    ctx.fillStyle = "white";
-    let s = debugCircle.size;
-    ctx.fillRect(debugCircle.x, debugCircle.y, s, s);
+    // let s = debugCircle.size;
+
+    for (let d of debugCircle) {
+        ctx.fillStyle = "white";
+        // ctx.fillRect(d.x, d.y, d.size, d.size);
+
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.size / 2, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+
+    // ctx.fillStyle = "white";
 }
 
 function loop(ts) {
     circles.forEach(e => e.update(ts));
-    debugCircle.update(ts);
+    debugCircle.forEach(e => e.update(ts));
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     for (let c of circles) {
         ctx.fillStyle = c.color;
-        //ctx.fillRect(c.x, c.y, c.radius, c.radius);
+        // ctx.fillRect(c.x, c.y, c.radius, c.radius);
         ctx.beginPath();
         ctx.arc(c.x, c.y, c.radius / 2, 0, 2 * Math.PI);
         ctx.fill();
     }
-
+    
     connectAllTogether(circles);
 
-    // drawDebugCircle();
+    drawDebugCircle();
 
     //return;
     requestAnimationFrame(loop);
@@ -141,7 +153,7 @@ class Circle {
     }
 
     get color() {
-        return this.color_ 
+        return this.color_
     }
 
     constructor(canvas, opacity = 100, x = null, y = null) {
@@ -173,28 +185,42 @@ function getRandomColor(a = 100) {
 class DebugCircle {
     get x() {
         // return this.x_;
-        return Math.sin(this.ts / this.speed) * (this.canvas.width / 2) + this.x_;
+        return Math.sin(this.ts / (this.speed * this.direction) + this.offset) * (this.canvas.width / (2 * this.cycleRadius)) + this.x_;
     }
 
     get y() {
         // return this.y_;
 
-        return Math.cos(this.ts / this.speed) * (this.canvas.height / 3) + this.y_;
+        return Math.cos(this.ts / (this.speed * this.direction) + this.offset) * (this.canvas.height / (3 * this.cycleRadius)) + this.y_;
         // console.log(g);
         // return g;
     }
 
     get size() {
-        let d = getDistanceToMouseInPc(this);
+        // let d = getDistanceToMouseInPc(this);
         // console.log(d);
-        return d;
+        return this.size_;
     }
+
+    /*     get speed() {
+            // return planetSpeed;
+        } */
 
     constructor(canvas) {
         this.canvas = canvas;
         this.x_ = this.canvas.width / 2;
         this.y_ = this.canvas.height / 2;
-        this.speed = 10000;
+        this.direction = Math.random() > 0.5 ? -1 : 1;
+        this.speed = Math.random() * 40000 + 10000;
+
+        this.size_ = (Math.random() * 10);
+
+        this.color = "white";
+
+        //min = 5, max = 1
+        this.cycleRadius = (Math.random() * 4) + 1;
+
+        this.offset = Math.random() * 360;
     }
 
     update(ts) {
@@ -205,3 +231,5 @@ class DebugCircle {
 function hideCard() {
     document.querySelector(".main-container").classList.toggle("hide");
 }
+
+let planetSpeed = 1000;
